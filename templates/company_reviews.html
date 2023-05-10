@@ -1,0 +1,145 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="navbar.css">
+<style>
+
+.reviews-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.company-rating {
+  display: flex;
+  align-items: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.overall-rating {
+  margin-right: 10px;
+}
+
+.checked {
+  color: gold;
+}
+
+.num-ratings {
+  margin-left: 10px;
+  color: gray;
+}
+
+.review-item {
+  border: 1px solid gray;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.reviewer-name {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.review-rating {
+  margin-right: 10px;
+}
+
+.review-date {
+  margin-left: auto;
+  color: gray;
+}
+
+.review-content p {
+  margin: 0;
+}
+
+</style>
+<nav class="navbar top-navbar">
+  <div class="navbar-brand">
+    <a href="#">oticket.com</a>
+  </div>
+  <ul class="navbar-nav">
+    <li class="nav-item"><a href="#">My Journeys</a></li>
+    <li class="nav-item"><a href="#">|</a></li>
+    <li class="nav-item"><a href="#">My Tickets</a></li>
+  </ul>
+  <div class="navbar-profile">
+    <span class="navbar-username">Username</span>
+    <a href="#" class="navbar-profile-icon"><i class="fas fa-user"></i></a>
+    <a href="#" class="navbar-logout-button">Logout</a>
+  </div>
+</nav>
+
+<nav class="navbar bottom-navbar">
+  <ul class="navbar-nav">
+    <li class="nav-item"><a href="#">ALL</a></li>
+    <li class="nav-item"><a href="#">Flight</a></li>
+    <li class="nav-item"><a href="#">Bus</a></li>
+    <li class="nav-item"><a href="#">Train</a></li>
+  </ul>
+</nav>
+
+<div class="reviews-container">
+    <h1>OZ ERCIS SEYAHAT Reviews</h1>
+    <div class="company-rating">
+      <span class="overall-rating">4.0</span>
+      <span class="fa fa-star checked"></span>
+      <span class="fa fa-star checked"></span>
+      <span class="fa fa-star checked"></span>
+      <span class="fa fa-star checked"></span>
+      <span class="fa fa-star"></span>
+      <span class="num-ratings">(50 ratings)</span>
+    </div>
+    <div class="sort-by">
+        <label for="sort-by-select">Sort by:</label>
+        <select id="sort-by-select">
+          <option value="date-desc">Date (newest first)</option>
+          <option value="date-asc">Date (oldest first)</option>
+          <option value="rating-desc">Rating (highest first)</option>
+          <option value="rating-asc">Rating (lowest first)</option>
+        </select>
+      </div>
+    <ul class="review-list">
+      <li class="review-item">
+        <div class="review-header">
+          <span class="reviewer-name">John Doe</span>
+          <span class="review-rating">3.0</span>
+          <span class="fa fa-star checked"></span>
+          <span class="fa fa-star checked"></span>
+          <span class="fa fa-star checked"></span>
+          <span class="fa fa-star"></span>
+          <span class="fa fa-star"></span>
+          <span class="review-date"><em>Vehicle: 2012 NEOPLAN STARLINER</em></span>
+          <span class="review-date">Jan 1, 2023</span>
+        </div>
+        <div class="review-content">
+          <p>The bus was clean and comfortable. However, the driver was a bit reckless.</p>
+        </div>
+      </li>
+      <li class="review-item">
+        <div class="review-header">
+          <span class="reviewer-name">Jane Smith</span>
+          <span class="review-rating">5.0</span>
+          <span class="fa fa-star checked"></span>
+          <span class="fa fa-star checked"></span>
+          <span class="fa fa-star checked"></span>
+          <span class="fa fa-star checked"></span>
+          <span class="fa fa-star checked"></span>
+          <span class="review-date">Dec 20, 2022</span>
+        </div>
+        <div class="review-content">
+          <p>The train ride was smooth and on time. I would definitely recommend this company.</p>
+        </div>
+      </li>
+      <!-- More review items here -->
+    </ul>
+  </div>
+  

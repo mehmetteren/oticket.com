@@ -1,0 +1,226 @@
+<html>
+    <link rel="stylesheet" href="navbar.css">
+<style>
+  .trip-listing {
+  max-width: 1200px;
+  margin: 20px auto;
+}
+
+.search-bar {
+  margin-bottom: 20px;
+  margin-left: 0%;
+  display: flex;
+  flex-wrap:nowrap;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 10px;
+  background-color: #f1f1f1;
+  border-radius: 5px;
+}
+
+.search-bar label {
+  margin-right: 5px;
+}
+
+.search-bar select{
+  margin-right: 40px;
+  padding: 5px;
+  border: none;
+  border-radius: 3px;
+  font-size: 16px;
+}
+
+.search-bar input[type="date"]{
+    padding: 5px;
+  border: none;
+  border-radius: 3px;
+  font-size: 16px;
+}
+.search-bar button[type="submit"] {
+  padding: 10px;
+  border: none;
+  border-radius: 3px;
+  border-color: #f44336;
+  font-size: 16px;
+  margin-left: 70px;
+}
+
+.search-bar button[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+}
+
+.sort-by {
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.sort-by label {
+  margin-right: 10px;
+}
+
+.sort-by select {
+  padding: 5px;
+  border: none;
+  border-radius: 3px;
+  font-size: 16px;
+}
+
+.trip-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.trip-item {
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trip-company {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.trip-time {
+  font-size: 16px;
+}
+
+.trip-locations {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.trip-vehicle {
+  font-size: 16px;
+}
+
+.trip-price {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.trip-status {
+  font-size: 16px;
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.trip-status.available {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.trip-status.full {
+    justify-content: center;
+  background-color: #f44336;
+  width: 60px;
+  color: white;
+}
+
+</style>
+<nav class="navbar top-navbar">
+    <div class="navbar-brand">
+      <a href="#">oticket.com</a>
+    </div>
+    <ul class="navbar-nav">
+      <li class="nav-item"><a href="#">My Journeys</a></li>
+      <li class="nav-item"><a href="#">|</a></li>
+      <li class="nav-item"><a href="#">My Tickets</a></li>
+    </ul>
+    <div class="navbar-profile">
+      <span class="navbar-username">Username</span>
+      <a href="#" class="navbar-profile-icon"><i class="fas fa-user"></i></a>
+      <a href="#" class="navbar-logout-button">Logout</a>
+    </div>
+  </nav>
+  
+  <nav class="navbar bottom-navbar">
+    <ul class="navbar-nav">
+      <li class="nav-item"><a href="#">ALL</a></li>
+      <li class="nav-item"><a href="#">Flight</a></li>
+      <li class="nav-item-selected"><a href="#">Bus</a></li>
+      <li class="nav-item"><a href="#">Train</a></li>
+    </ul>
+  </nav>
+
+<div class="trip-listing">
+    <div class="search-bar">
+      <form>
+        <label for="departure-location">Departure Location:</label>
+        <select id="departure-location">
+            <option value="dep">Ankara</option>
+        </select>
+        <label for="arrival-location">Arrival Location:</label>
+        <select type="option" id="arrival-location" name="arrival-location" value="Los Angeles">
+            <option value="dep">Adana</option>
+        </select>
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" value="2023-05-01">
+        <button type="submit">Edit Search</button>
+      </form>
+    </div>
+    <div class="sort-by">
+      <label for="sort-by-select">Sort by:</label>
+      <select id="sort-by-select">
+        <option value="price-desc">Price (highest first)</option>
+        <option value="price-asc">Price (lowest first)</option>
+        <option value="departure-time-asc">Departure Time (earliest first)</option>
+        <option value="departure-time-desc">Departure Time (latest first)</option>
+        <option value="arrival-time-asc">Arrival Time (earliest first)</option>
+        <option value="arrival-time-desc">Arrival Time (latest first)</option>
+      </select>
+    </div>
+    <ul class="trip-list">
+      <li class="trip-item">
+        <div class="trip-company">LUKS ADANA</div>
+        <div class="trip-time">
+          <span class="departure-time">09:00</span> - <span class="arrival-time">17:00</span>
+        </div>
+        <div class="trip-locations">
+          <span class="departure-location">Ankara</span> - <span class="arrival-location">Adana</span>
+        </div>
+        <div class="trip-vehicle">2012 NEOPLAN STARLINER</div>
+        <div class="trip-price">700 TL</div>
+        <div class="trip-status available">Available</div>
+      </li>
+      <li class="trip-item">
+        <div class="trip-company">Seyhan Turizm</div>
+        <div class="trip-time">
+          <span class="departure-time">10:00</span> - <span class="arrival-time">18:00</span>
+        </div>
+        <div class="trip-locations">
+          <span class="departure-location">Ankara</span> - <span class="arrival-location">Adana</span>
+        </div>
+        <div class="trip-vehicle"> 2018 MERCEDES TRAVEGO</div>
+        <div class="trip-price">750 TL</div>
+        <div class="trip-status full">Full</div>
+      </li>
+      <li class="trip-item">
+        <div class="trip-company">Seyhan Turizm</div>
+        <div class="trip-time">
+          <span class="departure-time">12:00</span> - <span class="arrival-time">20:00</span>
+        </div>
+        <div class="trip-locations">
+          <span class="departure-location">Ankara</span> - <span class="arrival-location">Adana</span>
+        </div>
+        <div class="trip-vehicle">2019 MERCEDES TRAVEGO</div>
+        <div class="trip-price">750 TL</div>
+        <div class="trip-status available">Available</div>
+      </li>
+    </ul>
+  </div>
+  
+
+
+</html>
