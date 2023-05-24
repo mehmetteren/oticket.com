@@ -1,0 +1,201 @@
+{% extends "company_base.html" %}
+
+{% block title %}Schedules{% endblock %}
+
+{% block head %}
+<style>
+  .schedule-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+  }
+
+  .schedules-icon {
+    font-size: 2em;
+    color: #28a745;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .schedules-line {
+    width: 60%;
+    height: 2px;
+    background-color: #28a745;
+    margin-bottom: 20px;
+  }
+
+  .schedule-form {
+    width: 300px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+
+  .form-group input[type="text"],
+  .form-group input[type="time"],
+  .form-group input[type="date"] {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .form-group input[type="submit"] {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .form-group input[type="submit"]:hover {
+    background-color: #218838;
+  }
+
+  .active-schedules-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .schedule-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  .schedule-card-content {
+    display: flex;
+    align-items: center;
+  }
+
+  .schedule-card-icon {
+    font-size: 20px;
+    color: #28a745;
+    margin-right: 10px;
+  }
+
+  .schedule-card-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .schedule-card-info h4 {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .schedule-card-info p {
+    margin: 0;
+    font-size: 14px;
+    color: #6c757d;
+  }
+
+  .schedule-card-actions {
+    display: flex;
+    align-items: center;
+  }
+
+  .schedule-card-actions a {
+    margin-left: 10px;
+    color: #6c757d;
+    cursor: pointer;
+  }
+
+  .schedule-card-actions a:hover {
+    color: #28a745;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  <div class="schedule-container">
+    <i class="material-icons schedules-icon">edit_calendar</i>
+    <h2>Publish New Schedule</h2>
+    <div class="schedules-line"></div>
+
+    <form class="schedule-form" action="/add_schedule" method="POST">
+      <div class="form-group">
+        <label for="start_place">Start Place:</label>
+        <input type="text" id="start_place" name="start_place" required>
+      </div>
+
+      <div class="form-group">
+        <label for="end_place">End Place:</label>
+        <input type="text" id="end_place" name="end_place" required>
+      </div>
+
+      <div class="form-group">
+        <label for="departure_time">Departure Time:</label>
+        <input type="time" id="departure_time" name="departure_time" required>
+      </div>
+
+      <div class="form-group">
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" required>
+      </div>
+
+      <div class="form-group">
+        <label for="transportation_type">Transportation Type:</label>
+        <select id="transportation_type" name="transportation_type" required>
+          <option value="Bus">Bus</option>
+          <option value="Train">Train</option>
+          <option value="Flight">Flight</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="price">Price (TL):</label>
+        <input type="number" id="price" name="price" min="0" step="0.01" required>
+      </div>
+
+      <div class="form-group">
+        <input type="submit" value="Publish">
+      </div>
+    </form>
+
+    <div class="schedules-line"></div>
+
+    <div class="active-schedules-container">
+    <i class="material-icons schedules-icon">event_available</i>
+      <h2>Active Schedules</h2>
+     
+    {% if schedules %}
+        {% for schedule in schedules %}
+            <div class="schedule-card">
+            <div class="schedule-card-content">
+                <i class="material-icons schedule-card-icon">schedule</i>
+                <div class="schedule-card-info">
+                <h4>Trip: {{ schedule.start_place }} - {{ schedule.end_place }}</h4>
+                <p>Date: {{ schedule.date }}</p>
+                <p>Departure Time: {{ schedule.departure_time }}</p>
+                <p>Transportation Type: {{ schedule.transportation_type }}</p>
+                <p>Price: {{ schedule.price }} TL </p>
+                </div>
+            </div>
+            <div class="schedule-card-actions">
+                <a href="/delete/{{ schedule.schedule_id }}"><i class="material-icons">delete</i></a>
+            </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No active schedules available.</p>
+    {% endif %}
+    </div>
+  </div>
+{% endblock %}

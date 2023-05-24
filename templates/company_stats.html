@@ -1,0 +1,133 @@
+{% extends "company_base.html" %}
+
+{% block title %}Stats{% endblock %}
+
+{% block head %}
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+    .stats-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 20px;
+    }
+
+    .stats-icon {
+        font-size: 2em;
+        color: #28a745;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .stats-text {
+        margin: 0;
+    }
+
+    .stats-line {
+        width: 60%;
+        height: 2px;
+        background-color: #28a745;
+        margin-bottom: 20px;
+    }
+
+    .stats-group-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .stats-group {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    .stats-group-title {
+        font-size: 20px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .stats-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 5px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border: 1px solid #28a745;
+        border-radius: 5px;
+        width: 200px;
+    }
+
+    .stats-card-icon {
+        font-size: 2em;
+        color: #28a745;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .stats-card-title {
+        font-size: 16px;
+        margin-bottom: 5px;
+        text-align: center;
+    }
+
+    .stats-card-value {
+        margin: 0;
+        font-size: 36px;
+        color: #28a745;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="stats-container">
+    <i class="material-icons stats-icon">calendar_month</i>
+    <h3 class="stats-text">Tickets sold this month: {{ tickets_sold }}</h3>
+    <div class="stats-line"></div>
+
+    <div class="stats-group-container">
+        <p class="stats-group-title">Gender Distribution</p>
+        <div class="stats-group">
+            <div class="stats-card">
+                <i class="material-icons stats-card-icon">male</i>
+                <p class="stats-card-title">Number of male customers</p>
+                <p class="stats-card-value">{{ male_customers }}</p>
+            </div>
+            <div class="stats-card">
+                <i class="material-icons stats-card-icon">female</i>
+                <p class="stats-card-title">Number of female customers</p>
+                <p class="stats-card-value">{{ female_customers }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-line"></div>
+
+    <div class="stats-group-container">
+        <p class="stats-group-title">Transportation Types</p>
+        <div class="stats-group">
+            <div class="stats-card">
+                <i class="material-icons stats-card-icon">directions_bus</i>
+                <p class="stats-card-title">Bus Tickets</p>
+                <p class="stats-card-value">{{ bus_tickets }}</p>
+            </div>
+            <div class="stats-card">
+                <i class="material-icons stats-card-icon">flight</i>
+                <p class="stats-card-title">Flight Tickets</p>
+                <p class="stats-card-value">{{ flight_tickets }}</p>
+            </div>
+            <div class="stats-card">
+                <i class="material-icons stats-card-icon">train</i>
+                <p class="stats-card-title">Train Tickets</p>
+                <p class="stats-card-value">{{ bus_tickets }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
