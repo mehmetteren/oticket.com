@@ -1,0 +1,125 @@
+{% extends "base_v2.html" %}
+
+{% block head %}
+{{super()}}
+<style>
+  
+  h6 {
+    font-size: 52px;
+    padding: 30px;
+    font-weight: bold;
+    margin: 0;
+    text-align: center;
+    background-color: #7fa98c76;
+  }
+    
+  h5 {
+    font-size: 30px;
+    padding: 30px;
+    font-weight: normal;
+    margin: 0 0;
+    text-align: center;
+    background-color: #7fa98c76;
+  }
+  
+  body{
+      padding: 0;
+    }
+  .ticket-search-box {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 10px;
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border: 1px solid #28a745;
+    border-radius: 5px;
+  }
+  
+  .search-inputs {
+    grid-column: span 2;
+    display: grid;
+    grid-gap: 10px;
+  }
+  
+  .input-row {
+    display: flex;
+    align-items: center;
+    grid-column-start: 4;
+  }
+  
+  label {
+    margin-right: 5px;
+  }
+  
+  button {
+    border-radius: 10px;
+    border-color: #f8f9fa;
+    color: #f8f9fa;
+    background-color: #28a745;
+    padding: 10px;
+    grid-column-start: 1;
+    grid-column-end: 4;
+  }
+  
+  /* Example icon style (using Font Awesome) */
+  .fa-exchange-alt {
+    cursor: pointer;
+  }
+  
+  
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+
+
+<h6>
+  WELCOME TO oticket.com!
+</h6>
+<h5>
+  - World's #1 ticket booking website -
+</h5>
+
+
+<body>
+  <form method="POST" action="{{ url_for('search.search_ticket', type='Bus') }}" class="form">
+    <div class="ticket-search-box">
+      <div class="search-inputs">
+        <div class="input-row">
+          <label for="departure_loc">From:</label>
+          <select type="option" name="departure_loc" id="departure_loc">
+            {% for location in locations %}
+            <option value='{{location}}'>{{location}}</option>
+            <!-- Add more options if needed -->
+            {% endfor %}
+          </select>
+        </div>
+        <div class="input-row">
+          <label for="arrival_loc">To:</label>
+          <select type="option" name="arrival_loc" id="arrival_loc">
+            {% for location in locations %}
+            <option value='{{location}}'>{{location}}</option>
+            <!-- Add more options if needed -->
+            {% endfor %}
+          </select>
+        </div>
+        <div class="input-row">
+          <label for="date">Departure Date:</label>
+          <input type="date" id="date" name="date">
+        </div>
+        <div class="input-row">
+          <label for="direct">Direct Travel:</label>
+          <input type="checkbox" id="direct" name="direct" value="1" checked>
+        </div>
+      </div>
+      <button type="submit">Find a Ticket -></button>
+    </div>
+  </form>
+</body>
+{% endblock %}
+
+

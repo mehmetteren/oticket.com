@@ -1,4 +1,4 @@
-
+body {font-family: monaco, monospace;}
 .navbar {
     display: flex;
     justify-content:space-between;

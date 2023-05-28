@@ -7,10 +7,11 @@ services:
     volumes:
       - ./app:/app
     working_dir: /app
-    command: python app.py
+    command: python app.py -u
   db:
     image: mysql:5.7
     environment:
+      PYTHONUNBUFFERED: 1
       MYSQL_ROOT_PASSWORD: pass
       MYSQL_DATABASE: db
     ports:

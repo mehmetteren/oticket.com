@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <style>
+    .navbar-nav .nav-item {
+      margin-right: 20px;
+    }
+
+    .navbar::after {
+      content: "";
+      display: block;
+      height: 2px;
+      background-color: #28a745;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+    }
+  
+  .navbar-profile {
+    display: flex;
+    align-items: center;
+  }
+  
+  .navbar-profile .navbar-username {
+    font-size: 18px;
+    margin-right: 10px;
+  }
+  
+  .navbar-profile .navbar-profile-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #ccc;
+    margin-right: 10px;
+  }
+  
+  .navbar-profile .navbar-profile-icon i {
+    color: #fff;
+  }
+  
+  .navbar-logout-button {
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+
+  }
+  
+  .navbar-logout-button:hover {
+    background-color: #3e8e41;
+    transition: ease 0.3s;
+    color: #ffffff;
+  }
+
+    /* Bottom Navbar Styles */
+
+    .bottom-navbar {
+      display: flex;
+      background-color: #4caf50;
+      color: #fff;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .bottom-navbar ul {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 15px;
+    }
+
+    .bottom-navbar a {
+      font-size: 18px;
+      margin-right: 10px;
+      background-color: #fff;
+      color: #3e3e3e;
+      border: #434343;
+      border-width: thick;
+      border-radius: 12px;
+      padding: 7px 20px;
+    }
+
+    .bottom-navbar a:hover {
+      color: #ffffff;
+      background-color: #005303;
+      transition: ease 0.3s;
+    }
+
+    .bottom-navbar a.selected {
+      font-size: 18px;
+      margin-right: 10px;
+      background-color: #005303;
+      color: #ffffff;
+      border: #434343;
+      border-width: thick;
+      border-radius: 12px;
+      padding: 7px 20px;
+    }
+
+  </style>
+  {% block head %}{% endblock %}
+</head>
+
+<body>
+  <!-- Top navigation bar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white">
+    <div class="container">
+      <a class="navbar-brand fs-4 text-black text-decoration-underline" href="#">oticket.com</a>
+
+      <ul class="navbar-nav mx-auto">
+        {% if session['user_type'] == 'Customer' %}
+        <li class="nav-item">
+          <a class="nav-link text-black" href="#">My Tickets</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-black" href="#">My Journeys</a>
+        </li>
+      </ul>
+      <div class="navbar-profile">
+        <span class="navbar-username">Username</span>
+        <a href="#" class="navbar-profile-icon"><i class="fas fa-user"></i></a>
+        <form action="{{ url_for('logout') }}" method="post">
+          <button type="submit" class="navbar-logout-button">Logout</button>
+        </form>
+      </div>
+
+      {% elif session['user_type'] == 'Company_User' %}
+      <li class="nav-item">
+        <a class="nav-link text-black" href="#">Stats</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-black" href="#">Vehicles</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-black" href="#">Schedules</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-black" href="#">My Company</a>
+      </li>
+      </ul>
+      <form action="{{ url_for('logout') }}" method="post">
+        <button class="btn btn-success">Logout</button>
+      </form>
+      {% elif session['user_type'] == 'Admin' %}
+      <!-- admin things -->
+
+      {% else %}
+      </ul>
+      <div class="navbar-profile">
+        <form action="{{ url_for('login') }}" method="get">
+          <button class="navbar-logout-button">Login</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+  </nav>
+
+  <nav class="bottom-navbar">
+    <ul>
+      <li class="nav-item"><a href="#" onclick="changeType(this, 'ALL')">ALL</a></li>
+      <li class="nav-item"><a href="#" onclick="changeType(this, 'Flight')">Flight</a></li>
+      <li class="nav-item"><a href="#" onclick="changeType(this, 'Bus')">Bus</a></li>
+      <li class="nav-item"><a href="#" onclick="changeType(this, 'Train')">Train</a></li>
+    </ul>
+  </nav>
+
+
+  {% block content %}
+
+
+
+  {% endblock %}
+
+  <script>
+    let transportation_type = "ALL";
+    function changeType(element, type) {
+      var anchors = document.querySelectorAll(".bottom-navbar a");
+      for (var i = 0; i < anchors.length; i++) {
+        anchors[i].classList.remove("selected");
+      }
+      element.classList.add("selected");
+      console.log(element);
+      localStorage.setItem("transportation_type", type);
+    }
+  </script>    
+
+</body>
+
+</html>
