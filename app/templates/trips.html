@@ -5,22 +5,59 @@
 {{super()}}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-$(document).ready(function () {
-  $(".trip-list").on("click", ".trip-item .trip-details", function () {
-    var $tripItem = $(this).closest(".trip-item");
-    var $ticketSelection = $tripItem.find(".ticket-selection");
-    var isVisible = $ticketSelection.is(":visible");
-    var height = isVisible ? 0 : $ticketSelection.outerHeight(true);
-    $ticketSelection.slideToggle();
-    $tripItem.css("margin-bottom", height + "px");
-  });
-});
+  $(document).ready(function () {
+    $(".trip-list").on("click", ".trip-item .trip-details", function () {
 
+
+      var $tripItem = $(this).closest(".trip-item");
+      var $ticketSelection = $tripItem.find(".ticket-selection");
+      var isVisible = $ticketSelection.is(":visible");
+      var height = isVisible ? 0 : $ticketSelection.outerHeight(true);
+      $ticketSelection.slideToggle();
+      $tripItem.css("margin-bottom", height + "px");
+
+
+      const schedule_code = $(this).data('schedule-code');
+
+      $.ajax({
+        url: '{{url_for("search.schedule_info")}}',
+        method: 'GET',
+        data: { schedule_code: schedule_code },
+        success: function (response) {
+          let counts = response.counts;
+          let prices = response.prices;
+          let balance = response.balance;
+
+          $ticketSelection.find(".first-class-count").text(counts["First Class"]);
+          $ticketSelection.find(".business-class-count").text(counts.Business);
+          $ticketSelection.find(".economy-class-count").text(counts.Economy);
+
+          $ticketSelection.find(".your-balance").text("Your balance: " + balance)
+
+          $ticketSelection.find(".first-class-price").text(prices["First Class"]);
+          $ticketSelection.find(".business-class-price").text(prices.Business);
+          $ticketSelection.find(".economy-class-price").text(prices.Economy);
+
+          console.log(counts); // Example: Log the response to the console
+          console.log(prices); // Example: Log the response to the console
+          console.log(balance); // Example: Log the response to the console
+
+        },
+        error: function (error) {
+          // Handle any errors that occurred during the AJAX request
+          console.log(schedule_code);
+          console.log(error);
+        }
+      });
+
+    });
+  });
 </script>
+
 <script>
   function showConfirmation() {
     var confirmation = confirm("Are you sure?");
-  
+/*
     if (confirmation) {
       // User clicked "OK" in the confirmation dialog
       // Perform the desired action here
@@ -29,15 +66,21 @@ $(document).ready(function () {
       // User clicked "Cancel" in the confirmation dialog
       // Handle the cancellation or perform alternative action here
       alert("Cancelled!");
-    }
+    }*/
   }
-  </script>
+</script>
+
+
 
 <style>
   .trip-listing {
     max-width: 1200px;
     margin: 20px auto;
-    
+
+  }
+
+  .trip-listing h2 {
+    color:#f44336
   }
 
   .search-bar {
@@ -126,7 +169,8 @@ $(document).ready(function () {
     border: 1px solid #ddd;
     border-radius: 5px;
     cursor: pointer;
-    transition: all 0.8s ease; /* Apply a smooth transition effect */
+    transition: all 0.8s ease;
+    /* Apply a smooth transition effect */
   }
 
   .trip-item:hover {
@@ -135,24 +179,26 @@ $(document).ready(function () {
 
   .trip-details {
     border-radius: 5px;
-    display:flex;
+    display: flex;
     flex-wrap: wrap;
-    justify-content:space-between;
-    align-items:flex-end;
+    justify-content: space-between;
+    align-items: flex-end;
     width: 100%;
   }
 
-  .trip-details > * {
-    margin-right: 5%; /* Adjust the spacing between trip-company elements */
+  .trip-details>* {
+    margin-right: 5%;
+    /* Adjust the spacing between trip-company elements */
     white-space: nowrap;
     background-color: #cdcdcd67;
     padding: 5px;
     border-radius: 3px;
   }
 
-  .trip-details > *:last-child {
-    margin-right: 0px; /* Adjust the spacing between trip-company elements */
-    align-self:flex-end;
+  .trip-details>*:last-child {
+    margin-right: 0px;
+    /* Adjust the spacing between trip-company elements */
+    align-self: flex-end;
   }
 
   .trip-company {
@@ -198,25 +244,27 @@ $(document).ready(function () {
   }
 
   .ticket-selection {
-  align-items:center;
-  justify-content:space-between;
-  display: none;
-  overflow: hidden;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 90%;
-  height: 180px;
-  background-color: #7fa98c3d;
-  border: 1px solid #ccc;
-  transition: display 0.3s ease; /* Apply a smooth transition effect */
+    align-items: center;
+    justify-content: space-between;
+    display: none;
+    overflow: hidden;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 90%;
+    height: 180px;
+    background-color: #7fa98c3d;
+    border: 1px solid #ccc;
+    transition: display 0.3s ease;
+    /* Apply a smooth transition effect */
   }
 
-.ticket-selection.show {
-  display: flex; /* Adjust the value as needed */
-}
+  .ticket-selection.show {
+    display: flex;
+    /* Adjust the value as needed */
+  }
 
-.review-button {
+  .review-button {
     background-color: #ffffffc7;
     color: #000000;
     border: thin solid #d914145e;
@@ -228,16 +276,30 @@ $(document).ready(function () {
     cursor: pointer;
     transition: background-color 0.3s ease;
   }
-  
+
   .review-button:hover {
     background-color: #5252527c;
   }
 
-.ticket-selection table {
-  padding: 10px;
-  width: 100%;
-  border:#f44336;
-}
+  .ticket-selection table {
+    padding: 10px;
+    width: 100%;
+    border: #f44336;
+  }
+
+  .rb-ticket{
+    background-color: #000000ce;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .rb-ticket:hover {
+    background-color: #5252527c;
+  }
 
 </style>
 {% endblock %}
@@ -264,16 +326,22 @@ $(document).ready(function () {
       <button type="submit">Edit Search</button>
     </form>
   </div>
+  {% if message is defined and message %}
+  <h2>{{message}}</h2>
+  {% endif %}
   <div class="sort-by">
+    <form method="POST" action="{{ url_for('search.search_ticket', type='bus') }}" class="order-form">
     <label for="sort-by-select">Sort by:</label>
     <select id="sort-by-select" onchange="sortBy(this.value)">
-      <option value="price-desc">Price (highest first)</option>
-      <option value="price-asc">Price (lowest first)</option>
-      <option value="departure-time-asc">Departure Time (earliest first)</option>
-      <option value="departure-time-desc">Departure Time (latest first)</option>
-      <option value="arrival-time-asc">Arrival Time (earliest first)</option>
-      <option value="arrival-time-desc">Arrival Time (latest first)</option>
+      <option value="price_to_show DESC">Price (highest first)</option>
+      <option value="price_to_show ASC">Price (lowest first)</option>
+      <option value="departure_time ASC">Departure Time (earliest first)</option>
+      <option value="departure_time DESC">Departure Time (latest first)</option>
+      <option value="arrival_time ASC">Arrival Time (earliest first)</option>
+      <option value="arrival_time DESC">Arrival Time (latest first)</option>
     </select>
+    <button type="submit">Edit Search</button>
+    </form>
   </div>
 
   <div class="trip-locations">
@@ -284,7 +352,7 @@ $(document).ready(function () {
   <ul class="trip-list">
     {% for trip in trips %}
     <li class="trip-item">
-      <div class="trip-details">
+      <div class="trip-details" data-schedule-code="{{trip.schedule_code}}">
         <div class="trip-company">{{trip.company_name}}</div>
         <div class="trip-time">
           <span class="departure-time">{{trip.departure_time}}</span> -
@@ -305,32 +373,60 @@ $(document).ready(function () {
           <tr>
             <th>Class</th>
             <th>Available Seats</th>
+            <th>Price</th>
             <th></th>
             <th></th>
             <th></th>
           </tr>
           <tr>
             <td>First Class</td>
-            <td>10</td>
-            <td><button onclick="showConfirmation()">Reserve One</button></td>
-            <td><button onclick="showConfirmation()">Buy One</button></td>
-            <td>Your balance: xxxx</td>
+            <td class="first-class-count">0</td>
+            <td class="first-class-price">0</td>
+            <form method="POST"
+              action="{{ url_for('search.reserve_ticket', category='First Class', schedule_code=trip.schedule_code) }}"
+              class="reserve-form">
+              <td><button class="rb-ticket" onclick="showConfirmation()">Reserve One</button></td>
+            </form>
+            <form method="POST"
+            action="{{ url_for('search.buy_ticket', category='First Class', schedule_code=trip.schedule_code) }}"
+            class="buy-form">
+            <td><button class="rb-ticket" onclick="showConfirmation()">Buy One</button></td>
+            </form>
+            <td class="your-balance">Your balance: xxxx</td>
           </tr>
           <tr>
             <td>Business Class</td>
-            <td>10</td>
-            <td><button onclick="reserve('Business Class')">Reserve One</button></td>
-            <td><button onclick="buy('Business Class')">Buy One</button></td>
+            <td class="business-class-count">0</td>
+            <td class="business-class-price">0</td>
+            <form method="POST"
+              action="{{ url_for('search.reserve_ticket', category='Business', schedule_code=trip.schedule_code) }}"
+              class="reserve-form">
+              <td><button class="rb-ticket" onclick="showConfirmation()">Reserve One</button></td>
+            </form>
+            <form method="POST"
+            action="{{ url_for('search.buy_ticket', category='Business', schedule_code=trip.schedule_code) }}"
+            class="buy-form">
+            <td><button class="rb-ticket" onclick="showConfirmation()">Buy One</button></td>
+            </form>
           </tr>
           <tr>
             <td>Economy Class</td>
-            <td>20</td>
-            <td><button onclick="reserve('Economy Class')">Reserve One</button></td>
-            <td><button onclick="buy('Economy Class')">Buy One</button></td>
+            <td class="economy-class-count">0</td>
+            <td class="economy-class-price">0</td>
+            <form method="POST"
+              action="{{ url_for('search.reserve_ticket', category='Economy', schedule_code=trip.schedule_code) }}"
+              class="reserve-form">
+              <td><button class="rb-ticket" onclick="showConfirmation()">Reserve One</button></td>
+            </form>
+            <form method="POST"
+            action="{{ url_for('search.buy_ticket', category='Economy', schedule_code=trip.schedule_code) }}"
+            class="buy-form">
+            <td><button class="rb-ticket" onclick="showConfirmation()">Buy One</button></td>
+            </form>
             <td></td>
           </tr>
         </table>
-        
+
       </div>
     </li>
     {% endfor %}
@@ -338,55 +434,6 @@ $(document).ready(function () {
   {% endblock %}
 
 
-<!--
-  <ul class="trip-list">
-    {% for trip in trips %}
-      <li class="trip-item">
-        <div class="trip-company">{{trip.company_name}}</div>
-        <div class="trip-time">
-          <span class="departure-time">{{trip.departure_time}}</span> - <span
-            class="arrival-time">{{trip.arrival_time}}</span>
-        </div>
-        <div class="trip-vehicle">{{trip.year}} {{trip.model_name}}</div>
-        <div class="trip-price">{{trip.price_to_show}} TL</div>
-        {% if trip.status == 'Available' %}
-        <div class="trip-status available">Available</div>
-        {% else %}
-        <div class="trip-status full">Full</div>
-        {% endif %}
-        <div class="ticket-selection">
-
-
-        </div>
-      </li>
-      {% endfor %}
-      
-      <li class="trip-item">
-        <div class="trip-company">Seyhan Turizm</div>
-        <div class="trip-time">
-          <span class="departure-time">10:00</span> - <span class="arrival-time">18:00</span>
-        </div>
-        <div class="trip-locations">
-          <span class="departure-location">Ankara</span> - <span class="arrival-location">Adana</span>
-        </div>
-        <div class="trip-vehicle"> 2018 MERCEDES TRAVEGO</div>
-        <div class="trip-price">750 TL</div>
-        <div class="trip-status full">Full</div>
-      </li>
-      <li class="trip-item">
-        <div class="trip-company">Seyhan Turizm</div>
-        <div class="trip-time">
-          <span class="departure-time">12:00</span> - <span class="arrival-time">20:00</span>
-        </div>
-        <div class="trip-locations">
-          <span class="departure-location">Ankara</span> - <span class="arrival-location">Adana</span>
-        </div>
-        <div class="trip-vehicle">2019 MERCEDES TRAVEGO</div>
-        <div class="trip-price">750 TL</div>
-        <div class="trip-status available">Available</div>
-      </li>
-      
-  </ul>-->
 </div>
 
 

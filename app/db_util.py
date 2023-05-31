@@ -1,5 +1,7 @@
 import MySQLdb.cursors
+import string
 from typing import Tuple
+
 def get_all(table, attribute='*', cursor=None, where='TRUE'):
     if cursor:       
         cursor.execute(f"SELECT {attribute} FROM {table} WHERE {where}")
@@ -53,3 +55,58 @@ def generate_tickets(mysql, schedule_code, economy_price:float, first_price:floa
     else:
         print("Error: None value provided for schedule_code or mysql connection")
     
+
+def ticket_checks(user_id, schedule_code, category,  cursor, conflicting_schedules_check=True) -> dict:
+    cursor.execute(f'''
+    SELECT balance
+    FROM Customer
+    WHERE user_ptr_id = {user_id};''')
+    balance = cursor.fetchone()['balance']
+
+    # Check if ticket is available
+    cursor.execute(f'''
+    SELECT *
+    FROM Ticket
+    WHERE category = '{category}' AND status = 'Available' AND schedule_code = '{schedule_code}'
+    LIMIT 1
+    ''')
+    ticket = cursor.fetchone()
+
+    cursor.execute(f'''
+    SELECT DATEDIFF(CURDATE(), birth_date) / 365 AS age
+    FROM Customer
+    WHERE user_ptr_id = {user_id};''')
+    age = cursor.fetchone()['age']
+
+    if not ticket:
+        return {'message':"Ticket is not available!", 'seat_no': None}
+
+    # Check if user has enough balance
+    if ticket['fare'] > balance:
+        return {'message':"Not enough balance!", 'seat_no': None}
+
+    # Check if user is old enough
+    if age < 18:
+        return {'message':"You are not old enough!", 'seat_no': None}
+
+    if conflicting_schedules_check:
+        # Check conflicting schedules
+        cursor.execute(f'''
+        SELECT t.schedule_code as code, s1.departure_datetime as dep, s1.arrival_datetime as arr
+        FROM Ticket t, Schedule s1,     
+        (SELECT s2.departure_datetime, s2.arrival_datetime
+            FROM Schedule s2
+            WHERE s2.code = '{schedule_code}') selected
+        WHERE t.customer_id = {user_id} AND t.schedule_code = s1.code 
+            AND (UNIX_TIMESTAMP(s1.departure_datetime) <= UNIX_TIMESTAMP(selected.arrival_datetime) AND 
+            UNIX_TIMESTAMP(selected.departure_datetime) <= UNIX_TIMESTAMP(s1.arrival_datetime));
+        ''')
+        conflicting_schedules = cursor.fetchall()
+
+        if conflicting_schedules:
+            # {sch['dep']} - {sch['arr']}
+            return {'message':"You have conflicting schedules! Schedule code(s): " + 
+                    ' | '.join(f"{sch['code']}" for sch in conflicting_schedules), 
+                    'seat_no': None}
+    
+    return {'message':"OK", 'ticket': ticket}

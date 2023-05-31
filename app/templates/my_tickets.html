@@ -1,0 +1,324 @@
+{% extends "base_v2.html" %}
+<!DOCTYPE html>
+<html>
+{% block head %}
+{{super()}}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $(".trip-list").on("click", ".trip-item .trip-details", function () {
+
+
+      var $tripItem = $(this).closest(".trip-item");
+      var $ticketSelection = $tripItem.find(".ticket-selection");
+      var isVisible = $ticketSelection.is(":visible");
+      var height = isVisible ? 0 : $ticketSelection.outerHeight(true);
+      $ticketSelection.slideToggle();
+      $tripItem.css("margin-bottom", height + "px");
+
+    });
+  });
+</script>
+
+<script>
+  function showConfirmation() {
+    var confirmation = confirm("Are you sure?");
+    /*
+        if (confirmation) {
+          // User clicked "OK" in the confirmation dialog
+          // Perform the desired action here
+          alert("Confirmed!");
+        } else {
+          // User clicked "Cancel" in the confirmation dialog
+          // Handle the cancellation or perform alternative action here
+          alert("Cancelled!");
+        }*/
+  }
+</script>
+
+
+
+<style>
+  .trip-listing {
+    max-width: 1200px;
+    margin: 20px auto;
+
+  }
+
+  .trip-listing h2 {
+    color: #f44336
+  }
+
+  .search-bar {
+    margin-bottom: 20px;
+    margin-left: 0%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+  }
+
+  .search-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .search-bar label {
+    margin-right: 3px;
+    font-size: 12px;
+  }
+
+  .search-bar select {
+    margin-right: 37px;
+    padding: 5px;
+    border: none;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+
+  .search-bar input[type="date"] {
+    padding: 3px;
+    border: none;
+    border-radius: 3px;
+    font-size: 14px;
+  }
+
+  .search-bar button[type="submit"] {
+    padding: 10px;
+    border: none;
+    border-radius: 3px;
+    border-color: #f44336;
+    font-size: 14px;
+    margin-left: 70px;
+  }
+
+  .search-bar button[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+  }
+
+  .sort-by {
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .sort-by label {
+    margin-right: 10px;
+  }
+
+  .sort-by select {
+    padding: 5px;
+    border: none;
+    border-radius: 3px;
+    font-size: 16px;
+  }
+
+  .trip-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .trip-item {
+    margin: 0;
+    position: relative;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.8s ease;
+    /* Apply a smooth transition effect */
+  }
+
+  .trip-item:hover {
+    background-color: #7fa98c76;
+  }
+
+  .trip-details {
+    border-radius: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+  }
+
+  .trip-details>* {
+    margin-right: 3%;
+    margin-bottom: 5px;
+    /* Adjust the spacing between trip-company elements */
+    white-space: nowrap;
+    background-color: #cdcdcd67;
+    padding: 5px;
+    border-radius: 3px;
+  }
+
+  .trip-details>*:last-child {
+    margin-right: 0px;
+    /* Adjust the spacing between trip-company elements */
+    align-self: flex-end;
+  }
+
+  .trip-company {
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  .trip-time {
+    position: relative;
+    font-size: 16px;
+  }
+
+  .trip-locations {
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .trip-vehicle {
+    font-size: 16px;
+  }
+
+  .trip-price {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .trip-status {
+    font-size: 16px;
+    padding: 5px;
+    border-radius: 3px;
+  }
+
+  .trip-status.available {
+    background-color: #287df5;
+    color: white;
+  }
+
+  .trip-status.full {
+    justify-content: center;
+    background-color: #4CAF50;
+    width: 60px;
+    color: white;
+  }
+
+  .ticket-selection {
+    justify-content: space-between;
+    display: none;
+    overflow: hidden;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: -40%;
+    height: 60px;
+    background-color: #7fa98c3d;
+    border: 1px solid #ccc;
+    transition: display 0.3s ease;
+    /* Apply a smooth transition effect */
+  }
+
+  .ticket-selection.show {
+    display: flex;
+  }
+
+  .button-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 5px;
+  }
+
+  .review-button {
+    background-color: #ffffffc7;
+    color: #000000;
+    border: thin solid #d914145e;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    margin-right: 10px;
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .review-button:hover {
+    background-color: #5252527c;
+  }
+</style>
+{% endblock %}
+{% block content %}
+
+{% if message is defined and message %}
+<h2>{{message}}</h2>
+{% endif %}
+
+<div class="trip-listing">
+
+  <ul class="trip-list">
+    {% for trip in trips %}
+    <li class="trip-item">
+      <div class="trip-details" data-schedule-code="{{trip.schedule_code}}">
+        <div class="trip-company">
+          <span>{{trip.schedule_code}}</span>
+        </div>
+        <div class="trip-time">
+          <span class="departure-time">{{trip.departure_location}}</span> - <span
+            class="arrival-time">{{trip.arrival_location}}</span>
+        </div>
+        <div class="trip-time">{{trip.company_name}}</div>
+        <div class="trip-time">
+          <span class="departure-time">{{trip.departure_datetime}}</span> -
+          <span class="arrival-time">{{trip.arrival_datetime}}</span>
+        </div>
+        <div class="trip-vehicle">{{trip.category}}, SEAT NO: {{trip.seat_no}}</div>
+        <div class="trip-price">{{trip.fare}} TL</div>
+        {% if trip.status == 'Reserved' %}
+        <div class="trip-vehicle">You should pay for reserved tickets until 30 minutes before the departure.</div>
+        <div class="trip-status available">Reserved</div>
+        {% elif trip.status == 'Sold' %}
+        <div class="trip-status full">Paid</div>
+        {% endif %}
+      </div>
+      <div class="ticket-selection">
+        {% if trip.status == 'Reserved' %}
+        <div class="button-wrapper">
+          <form method="POST"
+            action="{{ url_for('my_tickets.pay', schedule_code=trip.schedule_code, seat_no=trip.seat_no) }}"
+            class="reserve-form">
+            <button class="review-button">Pay for Ticket</button>
+          </form>
+          <form method="POST"
+            action="{{ url_for('my_tickets.cancel', schedule_code=trip.schedule_code, seat_no=trip.seat_no) }}"
+            class="reserve-form">
+            <button class="review-button">Cancel Reservation</button>
+          </form>
+
+          {% elif trip.status == 'Sold' %}
+
+          <form method="POST"
+            action="{{ url_for('my_tickets.cancel', schedule_code=trip.schedule_code, seat_no=trip.seat_no) }}"
+            class="reserve-form">
+            <button class="review-button">Cancel Ticket with Refund</button>
+          </form>
+
+          {% endif %}
+        </div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endblock %}
+</div>
+
+
+
+</html>

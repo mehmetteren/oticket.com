@@ -260,16 +260,14 @@ FROM Ticket
 WHERE schedule_code = $sscode AND seat_no = $seatno;
 
  -- CHECKS
-NOT EXISTS (
- WITH selected_schedule(departure_datetime, arrival_datetime) as 
-    (SELECT departure_datetime, arrival_datetime
-    FROM Schedule
-    WHERE schedule_code = $sccode)
- SELECT
- FROM Ticket t, Schedule s, selected_schedule selected
- WHERE t.customer_id = $userid AND t.schedule_code = s.code AND 
-        UNIX_TIMESTAMP(s.departure_datetime) <= UNIX_TIMESTAMP(selected.arrival_datetime) AND 
-        UNIX_TIMESTAMP(selected.departure_datetime) <= UNIX_TIMESTAMP(s.arrival_datetime));
+SELECT t.schedule_code, s1.departure_datetime, s1.arrival_datetime
+ FROM Ticket t, Schedule s1,     
+ (SELECT s2.departure_datetime, s2.arrival_datetime
+    FROM Schedule s2
+    WHERE s2.code = 'S002') selected
+ WHERE t.customer_id = 8 AND t.schedule_code = s1.code 
+ 		AND (UNIX_TIMESTAMP(s1.departure_datetime) <= UNIX_TIMESTAMP(selected.arrival_datetime) AND 
+        UNIX_TIMESTAMP(selected.departure_datetime) <= UNIX_TIMESTAMP(s1.arrival_datetime));
 
 
 SELECT DATEDIFF(CURDATE(), birth_date) / 365 AS age

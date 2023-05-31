@@ -9,6 +9,8 @@ from datetime import timedelta, datetime
 import time
 
 from search import search_bp
+from my_tickets import my_tickets_bp
+from company import company_bp
 from db_util import generate_tickets
 
 app = Flask(__name__)
@@ -24,6 +26,9 @@ mysql = MySQL(app)
 app.extensions['mysql'] = mysql
 
 app.register_blueprint(search_bp)
+app.register_blueprint(my_tickets_bp)   
+app.register_blueprint(company_bp)
+
 
 
 
@@ -32,6 +37,7 @@ app.register_blueprint(search_bp)
 
 @app.route('/')
 def test():
+    # generate_tickets(mysql, 'S004', 1000, 2300, 2000)
     return redirect(url_for('search.search_ticket', type='ALL'))
     
 
@@ -56,11 +62,11 @@ def login():
             if user['user_type'] == 'Customer':
                 cursor.execute(f"SELECT * FROM Customer WHERE user_ptr_id = '{user['user_id']}'")
                 customer = cursor.fetchone()
-                session['balance'] = customer['balance']
                 session['phone'] = customer['phone']
                 session['birth_date'] = customer['birth_date']
                 session['tck'] = customer['tck']
                 session['gender'] = customer['gender']
+                session['balance'] = customer['balance']
 
             elif user['user_type'] == 'Company_User':
                 cursor.execute(f"SELECT * FROM Company_User WHERE user_ptr_id = '{user['user_id']}'")

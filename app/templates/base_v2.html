@@ -119,20 +119,21 @@
   <!-- Top navigation bar -->
   <nav class="navbar navbar-expand-lg navbar-light bg-white">
     <div class="container">
-      <a class="navbar-brand fs-4 text-black text-decoration-underline" href="#">oticket.com</a>
+      <a class="navbar-brand fs-4 text-black text-decoration-underline" href="{{url_for('search.search_ticket', type='ALL')}}">oticket.com</a>
 
       <ul class="navbar-nav mx-auto">
         {% if session['user_type'] == 'Customer' %}
         <li class="nav-item">
-          <a class="nav-link text-black" href="#">My Tickets</a>
+          <a class="nav-link text-black" href="{{url_for('my_tickets.my_tickets')}}">My Tickets</a>
         </li>
         <li class="nav-item">
           <a class="nav-link text-black" href="#">My Journeys</a>
         </li>
       </ul>
       <div class="navbar-profile">
-        <span class="navbar-username">Username</span>
+        <span class="navbar-username">{{session['name']}}</span>
         <a href="#" class="navbar-profile-icon"><i class="fas fa-user"></i></a>
+        <span class="navbar-username">{{session['balance']}} TL</span>
         <form action="{{ url_for('logout') }}" method="post">
           <button type="submit" class="navbar-logout-button">Logout</button>
         </form>
@@ -170,6 +171,7 @@
   </nav>
 
   <nav class="bottom-navbar">
+    <!-- if session['type'] -->
     <ul>
       <li class="nav-item"><a href="#" onclick="changeType(this, 'ALL')">ALL</a></li>
       <li class="nav-item"><a href="#" onclick="changeType(this, 'Flight')">Flight</a></li>

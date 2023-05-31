@@ -54,8 +54,9 @@ INSERT INTO Vehicle (vehicle_code, availability, capacity_firstclass, capacity_e
 VALUES
   ('TK78119', TRUE, 30, 150, 40, 'Boeing 747', 2015, 4),
   ('01AC2334', TRUE, 0, 60, 0, 'Neoplan Starliner', 2017, 1),
-  ('34T1111', TRUE, 0, 60, 0, 'Neoplan Starliner', 2017, 1),
+  ('34T1111', TRUE, 0, 60, 0, 'Neoplan Starliner', 2017, 3),
   ('34T7324', TRUE, 10, 30, 20, 'Mercedes-Benz Travego', 2019, 3),
+  ('34T2222', TRUE, 4, 36, 20, 'Mercedes-Benz Travego', 2019, 3),
   ('YHT-123', TRUE, 0, 300, 50, 'Siemens Valero (YHT)', 2016, 5);
 
 
@@ -84,5 +85,6 @@ INSERT INTO Schedule (code, transport_type, departure_datetime, arrival_datetime
 VALUES
   ('S001', 'Plane', '2022-06-15 08:00:00', '2022-06-15 16:00:00', TRUE, 4, 'TK78119', 3, NULL),
   ('S002', 'Bus', '2022-06-20 10:00:00', '2022-06-20 17:00:00', FALSE, 3, '34T7324', 1, NULL),
-  ('S003', 'Bus', '2022-06-20 12:00:00', '2022-06-20 19:00:00', FALSE, 3, '34T1111', 1, NULL);
+  ('S003', 'Bus', '2022-06-20 12:00:00', '2022-06-20 19:00:00', FALSE, 3, '34T1111', 1, NULL),
+  ('S004', 'Bus', '2022-06-20 14:00:00', '2022-06-20 21:00:00', FALSE, 3, '34T2222', 1, NULL);
 

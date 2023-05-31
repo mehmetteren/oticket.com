@@ -1,10 +1,10 @@
-from flask import Flask, Blueprint, current_app, url_for, redirect
+from flask import Flask, Blueprint, current_app, url_for, redirect, jsonify, session
 from flask import render_template
 from flask import request
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 
-from db_util import get_all
+from db_util import get_all, ticket_checks
 
 search_bp = Blueprint('search', __name__, template_folder='templates')
 
@@ -12,6 +12,16 @@ search_bp = Blueprint('search', __name__, template_folder='templates')
 # TODO: order the locations
 # TODO: drop the view
 # TODO: exceptions, no date etc., empty search result
+# TODO: male female seats işi iptal
+# TODO: add purchase datetime to tickets
+
+trips_dict = {
+'search_results': [],
+'locations': [],
+'departure_location': '',
+'arrival_location': ''
+}
+
 @search_bp.route('/search-ticket/<type>', methods=['GET', 'POST'])
 def search_ticket(type):
     mysql = current_app.extensions['mysql']
@@ -34,13 +44,12 @@ def search_ticket(type):
     
 @search_bp.route('/search-results', methods=['GET'])
 def search_results():
-    type=request.args.get('type')
-    departure_location=request.args.get('departure_location')
-    arrival_location=request.args.get('arrival_location')
-    date=request.args.get('date')
-    direct=request.args.get('direct')
-
-    print(type, departure_location, arrival_location, date, direct)
+    type = request.args.get('type')
+    departure_location = request.args.get('departure_location')
+    arrival_location = request.args.get('arrival_location')
+    date = request.args.get('date')
+    direct = request.args.get('direct')
+    order_by = request.args.get('order_by')
     
     mysql = current_app.extensions['mysql']
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -92,6 +101,7 @@ def search_results():
     FROM search_result s, Company c, ({vehicle_sql}) as veh, ({availability_sql}) as av, ({price_sql}) as pr
     WHERE s.company_id = c.company_id AND s.schedule_code = veh.schedule_code AND s.schedule_code = av.schedule_code
         AND s.schedule_code = pr.schedule_code
+    ORDER BY {order_by}
     ''')
 
     results = cursor.fetchall()
@@ -103,9 +113,115 @@ def search_results():
         locations[i] = locations_dict[i]['departure_location']
 
 
+    trips_dict['search_results'] = results
+    trips_dict['locations'] = locations
+    trips_dict['departure_location'] = departure_location
+    trips_dict['arrival_location'] = arrival_location
+
+
     return render_template('trips.html', trips=results, departure_location=departure_location, 
                            arrival_location=arrival_location, locations=locations)
 
     # return f"<h3>{type, departure_location, arrival_location, date, direct}</h3><h3>{e}</h3>"
+
+@search_bp.route('/schedule-info', methods=['GET'])
+def schedule_info():
+
+    schedule_code = request.args.get('schedule_code')
+    mysql = current_app.extensions['mysql']
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    cursor.execute(f'''
+    SELECT category, fare, COUNT(*) as cnt 
+    FROM Ticket 
+    WHERE schedule_code = '{schedule_code}' AND status = 'Available'
+    GROUP BY category, fare
+    ''')
+
+    results = cursor.fetchall()
+    
+    counts = {'Economy': 0, 'Business': 0, 'First Class': 0}
+    prices = {'Economy': 0, 'Business': 0, 'First Class': 0}
+    for res in results:
+        counts[res['category']] = res['cnt']
+        prices[res['category']] = res['fare']
+    
+
+    cursor.execute(f'''
+    SELECT balance
+    FROM Customer
+    WHERE user_ptr_id = '{session['user_id']}'
+    ''')
+    res = cursor.fetchone()
+
+    response = {
+        'counts': counts,
+        'prices': prices,
+        'balance': res['balance'] if res else 'X'
+    }
+    return jsonify(response)
+
+
+@search_bp.route('/reserve-ticket', methods=['POST'])
+def reserve_ticket():
+    if not session['loggedin'] or not session['user_type'] == 'Customer':
+        return redirect(url_for('login', message='You must be logged in as a customer to reserve a ticket!'))
+
+    mysql = current_app.extensions['mysql']
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    result = ticket_checks(session['user_id'], request.args.get('schedule_code'), 
+                  request.args.get('category'), cursor)
+    
+    if result['message'] == 'OK':
+
+        cursor.execute(f'''
+        UPDATE Ticket 
+        SET status = 'Reserved', customer_id = '{session['user_id']}'
+        WHERE schedule_code = '{request.args.get('schedule_code')}' AND seat_no = {result['ticket']['seat_no']}
+        ''')
+        mysql.connection.commit()
+
+        return render_template('trips.html', trips=trips_dict['search_results'] , departure_location=trips_dict['departure_location'], 
+                           arrival_location=trips_dict['arrival_location'], locations=trips_dict['locations'], message='Ticket reserved successfully!')
+    else:
+        return render_template('trips.html', trips=trips_dict['search_results'] , departure_location=trips_dict['departure_location'], 
+                           arrival_location=trips_dict['arrival_location'], locations=trips_dict['locations'],  message=result['message'])
+    
+
+@search_bp.route('/buy-ticket', methods=['POST'])
+def buy_ticket():
+    if not session['loggedin'] or not session['user_type'] == 'Customer':
+        return redirect(url_for('login', message='You must be logged in as a customer to buy a ticket!'))
+
+    mysql = current_app.extensions['mysql']
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    result = ticket_checks(session['user_id'], request.args.get('schedule_code'), 
+                  request.args.get('category'), cursor)
+    
+    if result['message'] == 'OK':
+
+        cursor.execute(f'''
+        UPDATE Customer
+        SET balance = balance - {result['ticket']['fare']}
+        ''')
+        mysql.connection.commit()
+
+        cursor.execute(f'''
+        UPDATE Ticket 
+        SET status = 'Sold', customer_id = '{session['user_id']}'
+        WHERE schedule_code = '{request.args.get('schedule_code')}' AND seat_no = {result['ticket']['seat_no']}
+        ''')
+        mysql.connection.commit()
+
+        cursor.execute(f"SELECT balance FROM Customer WHERE user_ptr_id = '{session['user_id']}'")
+        session['balance'] = cursor.fetchone()['balance']
+
+        return render_template('trips.html', trips=trips_dict['search_results'] , departure_location=trips_dict['departure_location'], 
+                           arrival_location=trips_dict['arrival_location'], locations=trips_dict['locations'], message='Ticket purchased successfully!')
+    else:
+        return render_template('trips.html', trips=trips_dict['search_results'] , departure_location=trips_dict['departure_location'], 
+                           arrival_location=trips_dict['arrival_location'], locations=trips_dict['locations'],  message=result['message'])
 
 
