@@ -19,7 +19,8 @@ trips_dict = {
 'search_results': [],
 'locations': [],
 'departure_location': '',
-'arrival_location': ''
+'arrival_location': '',
+'journeys': []
 }
 
 @search_bp.route('/search-ticket/<type>', methods=['GET', 'POST'])
@@ -44,12 +45,12 @@ def search_ticket(type):
     
 @search_bp.route('/search-results', methods=['GET'])
 def search_results():
+    
     type = request.args.get('type')
     departure_location = request.args.get('departure_location')
     arrival_location = request.args.get('arrival_location')
     date = request.args.get('date')
     direct = request.args.get('direct')
-    order_by = request.args.get('order_by')
     
     mysql = current_app.extensions['mysql']
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -60,6 +61,8 @@ def search_results():
         isnull = 'NOT NULL'
 
     cursor.execute(f"DROP VIEW IF EXISTS search_result;")
+    mysql.connection.commit()
+    cursor.execute(f"DROP VIEW IF EXISTS final_result;")
     mysql.connection.commit()
 
     cursor.execute(f'''
@@ -95,15 +98,16 @@ def search_results():
     WHERE sr.vehicle_code = vv.vehicle_code AND vv.year = vem.year 
         AND vv.model_name = vem.model_name'''
 
-    cursor.execute(f''' 
+    cursor.execute(f''' CREATE VIEW final_result AS (
     SELECT s.schedule_code, c.name as company_name, TIME(s.departure_datetime) as departure_time, 
         TIME(s.arrival_datetime) as arrival_time, veh.year, veh.model_name, av.status, pr.price_to_show 
     FROM search_result s, Company c, ({vehicle_sql}) as veh, ({availability_sql}) as av, ({price_sql}) as pr
     WHERE s.company_id = c.company_id AND s.schedule_code = veh.schedule_code AND s.schedule_code = av.schedule_code
-        AND s.schedule_code = pr.schedule_code
-    ORDER BY {order_by}
+        AND s.schedule_code = pr.schedule_code);
     ''')
+    mysql.connection.commit()
 
+    cursor.execute ("SELECT * FROM final_result")
     results = cursor.fetchall()
 
     locations_dict = get_all(table='Route', attribute='departure_location', cursor=cursor)
@@ -112,17 +116,42 @@ def search_results():
     for i in range(len(locations_dict)):
         locations[i] = locations_dict[i]['departure_location']
 
+    journeys = []
+    if session.get('loggedin', False) and session['user_type'] == 'Customer':
+        cursor.execute(f'''
+        SELECT journey_id, journey_name
+        FROM Journey
+        WHERE customer_id = '{session['user_id']}'
+        ''')
+        journeys = cursor.fetchall()
+
 
     trips_dict['search_results'] = results
     trips_dict['locations'] = locations
     trips_dict['departure_location'] = departure_location
     trips_dict['arrival_location'] = arrival_location
-
+    trips_dict['journeys'] = journeys
+    
 
     return render_template('trips.html', trips=results, departure_location=departure_location, 
-                           arrival_location=arrival_location, locations=locations)
+                           arrival_location=arrival_location, locations=locations, journeys=journeys)
 
     # return f"<h3>{type, departure_location, arrival_location, date, direct}</h3><h3>{e}</h3>"
+
+
+@search_bp.route('/search-results/previous-results', methods=['GET'])
+def previous_results():
+    mysql = current_app.extensions['mysql']
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    order_by = request.args.get('order-by', 'departure_time ASC')
+    cursor.execute(f"SELECT * FROM final_result ORDER BY {order_by}")
+    results = cursor.fetchall()
+
+    return render_template('trips.html', trips=results, departure_location=trips_dict['departure_location'], 
+                           arrival_location=trips_dict['arrival_location'], locations=trips_dict['locations'], 
+                           journeys=trips_dict['journeys'])
+
 
 @search_bp.route('/schedule-info', methods=['GET'])
 def schedule_info():
@@ -157,14 +186,14 @@ def schedule_info():
     response = {
         'counts': counts,
         'prices': prices,
-        'balance': res['balance'] if res else 'X'
+        'balance': res['balance'] if res else 'X',
     }
     return jsonify(response)
 
 
 @search_bp.route('/reserve-ticket', methods=['POST'])
 def reserve_ticket():
-    if not session['loggedin'] or not session['user_type'] == 'Customer':
+    if not session.get('loggedin', False) or not session['user_type'] == 'Customer':
         return redirect(url_for('login', message='You must be logged in as a customer to reserve a ticket!'))
 
     mysql = current_app.extensions['mysql']
@@ -183,10 +212,12 @@ def reserve_ticket():
         mysql.connection.commit()
 
         return render_template('trips.html', trips=trips_dict['search_results'] , departure_location=trips_dict['departure_location'], 
-                           arrival_location=trips_dict['arrival_location'], locations=trips_dict['locations'], message='Ticket reserved successfully!')
+                           arrival_location=trips_dict['arrival_location'], locations=trips_dict['locations'], message='Ticket reserved successfully!',
+                           journeys=trips_dict['journeys'])
     else:
         return render_template('trips.html', trips=trips_dict['search_results'] , departure_location=trips_dict['departure_location'], 
-                           arrival_location=trips_dict['arrival_location'], locations=trips_dict['locations'],  message=result['message'])
+                           arrival_location=trips_dict['arrival_location'], locations=trips_dict['locations'],  message=result['message'],
+                           journeys=trips_dict['journeys'])
     
 
 @search_bp.route('/buy-ticket', methods=['POST'])
@@ -205,6 +236,7 @@ def buy_ticket():
         cursor.execute(f'''
         UPDATE Customer
         SET balance = balance - {result['ticket']['fare']}
+        WHERE user_ptr_id = '{session['user_id']}'
         ''')
         mysql.connection.commit()
 
@@ -219,9 +251,11 @@ def buy_ticket():
         session['balance'] = cursor.fetchone()['balance']
 
         return render_template('trips.html', trips=trips_dict['search_results'] , departure_location=trips_dict['departure_location'], 
-                           arrival_location=trips_dict['arrival_location'], locations=trips_dict['locations'], message='Ticket purchased successfully!')
+                           arrival_location=trips_dict['arrival_location'], locations=trips_dict['locations'], message='Ticket purchased successfully!',
+                           journeys=trips_dict['journeys'])
     else:
         return render_template('trips.html', trips=trips_dict['search_results'] , departure_location=trips_dict['departure_location'], 
-                           arrival_location=trips_dict['arrival_location'], locations=trips_dict['locations'],  message=result['message'])
+                           arrival_location=trips_dict['arrival_location'], locations=trips_dict['locations'],  message=result['message'],
+                           journeys=trips_dict['journeys'])
 
 

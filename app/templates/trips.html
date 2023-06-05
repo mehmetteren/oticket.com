@@ -57,16 +57,16 @@
 <script>
   function showConfirmation() {
     var confirmation = confirm("Are you sure?");
-/*
-    if (confirmation) {
-      // User clicked "OK" in the confirmation dialog
-      // Perform the desired action here
-      alert("Confirmed!");
-    } else {
-      // User clicked "Cancel" in the confirmation dialog
-      // Handle the cancellation or perform alternative action here
-      alert("Cancelled!");
-    }*/
+    /*
+        if (confirmation) {
+          // User clicked "OK" in the confirmation dialog
+          // Perform the desired action here
+          alert("Confirmed!");
+        } else {
+          // User clicked "Cancel" in the confirmation dialog
+          // Handle the cancellation or perform alternative action here
+          alert("Cancelled!");
+        }*/
   }
 </script>
 
@@ -76,11 +76,10 @@
   .trip-listing {
     max-width: 1200px;
     margin: 20px auto;
-
   }
 
   .trip-listing h2 {
-    color:#f44336
+    color: #f44336
   }
 
   .search-bar {
@@ -251,8 +250,8 @@
     position: absolute;
     top: 100%;
     left: 0;
-    width: 90%;
-    height: 180px;
+    width: 80%;
+    height: 190px;
     background-color: #7fa98c3d;
     border: 1px solid #ccc;
     transition: display 0.3s ease;
@@ -262,6 +261,12 @@
   .ticket-selection.show {
     display: flex;
     /* Adjust the value as needed */
+  }
+
+  .buttons-wrapper {
+    align-items: center;
+    justify-content: space-between;
+    display: flex;
   }
 
   .review-button {
@@ -282,16 +287,19 @@
   }
 
   .ticket-selection table {
-    padding: 10px;
-    width: 100%;
-    border: #f44336;
+    padding: 7px;
+    width: 95%;
+    border: 2px solid #0000005c;
+    border-radius: 10px;
+    margin: 4px;
   }
 
-  .rb-ticket{
+  .rb-ticket {
     background-color: #000000ce;
     color: white;
     border: none;
     border-radius: 5px;
+    margin-bottom: 3px;
     font-size: 14px;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -300,7 +308,6 @@
   .rb-ticket:hover {
     background-color: #5252527c;
   }
-
 </style>
 {% endblock %}
 {% block content %}
@@ -330,17 +337,17 @@
   <h2>{{message}}</h2>
   {% endif %}
   <div class="sort-by">
-    <form method="POST" action="{{ url_for('search.search_ticket', type='bus') }}" class="order-form">
-    <label for="sort-by-select">Sort by:</label>
-    <select id="sort-by-select" onchange="sortBy(this.value)">
-      <option value="price_to_show DESC">Price (highest first)</option>
-      <option value="price_to_show ASC">Price (lowest first)</option>
-      <option value="departure_time ASC">Departure Time (earliest first)</option>
-      <option value="departure_time DESC">Departure Time (latest first)</option>
-      <option value="arrival_time ASC">Arrival Time (earliest first)</option>
-      <option value="arrival_time DESC">Arrival Time (latest first)</option>
-    </select>
-    <button type="submit">Edit Search</button>
+    <form method="GET" action="{{ url_for('search.previous_results', type='bus') }}" class="order-form">
+      <label for="sort-by-select">Sort by:</label>
+      <select id="sort-by-select" onchange="sortBy(this.value)" name="order-by">
+        <option value="departure_time ASC">Departure Time (earliest first)</option>
+        <option value="departure_time DESC">Departure Time (latest first)</option>
+        <option value="price_to_show DESC">Price (highest first)</option>
+        <option value="price_to_show ASC">Price (lowest first)</option>
+        <option value="arrival_time ASC">Arrival Time (earliest first)</option>
+        <option value="arrival_time DESC">Arrival Time (latest first)</option>
+      </select>
+      <button type="submit">Change Order</button>
     </form>
   </div>
 
@@ -367,8 +374,23 @@
         {% endif %}
       </div>
       <div class="ticket-selection">
-        <button class="review-button">Go to Company Reviews</button>
-        <button class="review-button">Go to Vehicle Reviews</button>
+        <div class="buttons-wrapper">
+          <button class="review-button">Go to Company Reviews</button>
+          <button class="review-button">Go to Vehicle Reviews</button>
+          {% if session['user_type'] == 'Customer' and session['loggedin'] %}
+          <div class="add-to-journey">
+            <form method="POST" action="{{ url_for('my_journeys.add_to_journey', schedule_code=trip.schedule_code) }}">
+              <button type="submit" class="review-button">Add to Journey</button>
+              <select type="option" name="journey" id="journey" placeholder="Select Journey">
+                {% for journey in journeys %}
+                <option value="{{journey.journey_id}}">{{journey.journey_name}}</option>
+                {% endfor %}
+              </select>
+            </form>
+          </div>
+          {% endif %}
+        </div>
+        <div class="table-div">
         <table>
           <tr>
             <th>Class</th>
@@ -388,11 +410,13 @@
               <td><button class="rb-ticket" onclick="showConfirmation()">Reserve One</button></td>
             </form>
             <form method="POST"
-            action="{{ url_for('search.buy_ticket', category='First Class', schedule_code=trip.schedule_code) }}"
-            class="buy-form">
-            <td><button class="rb-ticket" onclick="showConfirmation()">Buy One</button></td>
+              action="{{ url_for('search.buy_ticket', category='First Class', schedule_code=trip.schedule_code) }}"
+              class="buy-form">
+              <td><button class="rb-ticket" onclick="showConfirmation()">Buy One</button></td>
             </form>
-            <td class="your-balance">Your balance: xxxx</td>
+            {% if session['user_type'] == 'Customer' and session['loggedin'] %}
+            <td class="your-balance">xasd</td>
+            {% endif %}
           </tr>
           <tr>
             <td>Business Class</td>
@@ -404,9 +428,9 @@
               <td><button class="rb-ticket" onclick="showConfirmation()">Reserve One</button></td>
             </form>
             <form method="POST"
-            action="{{ url_for('search.buy_ticket', category='Business', schedule_code=trip.schedule_code) }}"
-            class="buy-form">
-            <td><button class="rb-ticket" onclick="showConfirmation()">Buy One</button></td>
+              action="{{ url_for('search.buy_ticket', category='Business', schedule_code=trip.schedule_code) }}"
+              class="buy-form">
+              <td><button class="rb-ticket" onclick="showConfirmation()">Buy One</button></td>
             </form>
           </tr>
           <tr>
@@ -419,14 +443,14 @@
               <td><button class="rb-ticket" onclick="showConfirmation()">Reserve One</button></td>
             </form>
             <form method="POST"
-            action="{{ url_for('search.buy_ticket', category='Economy', schedule_code=trip.schedule_code) }}"
-            class="buy-form">
-            <td><button class="rb-ticket" onclick="showConfirmation()">Buy One</button></td>
+              action="{{ url_for('search.buy_ticket', category='Economy', schedule_code=trip.schedule_code) }}"
+              class="buy-form">
+              <td><button class="rb-ticket" onclick="showConfirmation()">Buy One</button></td>
             </form>
             <td></td>
           </tr>
         </table>
-
+        </div>
       </div>
     </li>
     {% endfor %}

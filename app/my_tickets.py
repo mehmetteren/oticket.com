@@ -18,6 +18,7 @@ def my_tickets():
     message=request.args.get('message')
     mysql = current_app.extensions['mysql']
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
     cursor.execute(f'''
     SELECT t.schedule_code, t.seat_no, t.status, t.category, t.fare, r.departure_location, 
         r.arrival_location, s.departure_datetime, s.arrival_datetime, c.name as company_name
@@ -25,7 +26,9 @@ def my_tickets():
     WHERE s.route_id = r.route_id AND t.schedule_code = s.code 
         AND t.customer_id = {session['user_id']} AND s.company_id = c.company_id
     ''')
+
     trips_dict['tickets'] = cursor.fetchall()
+
     return render_template('my_tickets.html', trips=trips_dict['tickets'], message=message)
 
 
@@ -54,6 +57,7 @@ def pay():
         cursor.execute(f'''
         UPDATE Customer
         SET balance = balance - {ticket['fare']}
+        WHERE user_ptr_id = {session['user_id']}
         ''')
         mysql.connection.commit()
 
@@ -97,7 +101,7 @@ def cancel():
         WHERE user_ptr_id = {session['user_id']}
         ''')
         mysql.connection.commit()
-        session['balance'] += fare
+        session['balance'] = float(session['balance']) + float(fare)
     
     cursor.execute(f'''
     UPDATE Ticket

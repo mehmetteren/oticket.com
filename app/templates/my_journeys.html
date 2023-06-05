@@ -1,0 +1,388 @@
+{% extends "base_v2.html" %}
+<!DOCTYPE html>
+<html>
+{% block head %}
+{{super()}}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+        $(".journey-list").on("click", ".journey-item .journey-details", function () {
+
+
+            var $tripItem = $(this).closest(".journey-item");
+            var $ticketSelection = $tripItem.find(".ticket-selection");
+            var isVisible = $ticketSelection.is(":visible");
+            var height = isVisible ? 0 : $ticketSelection.outerHeight(true);
+            $ticketSelection.slideToggle();
+            $tripItem.css("margin-bottom", height + "px");
+            console.log("clicked")
+
+            tripList = $ticketSelection.find(".trip-list");
+
+            if (isVisible) {
+                tripList.empty();
+            }
+            else {
+                const journey_id = $(this).data('journey-id');
+
+                $.ajax({
+                    url: '{{url_for("my_journeys.journey_info")}}',
+                    method: 'GET',
+                    data: { journey_id: journey_id },
+                    success: function (response) {
+                        let trips = response.trips;
+
+
+                        for (var i = 0; i < trips.length; i++) {
+
+                            let trip = trips[i];
+
+                            let newListItem = `
+                            <li class="trip-item">
+                            <div class="trip-details">
+                                <div class="trip-company">${trip.company_name}</div>
+                                <div class="trip-time">
+                                <span class="departure-time">${trip.departure_location}</span> -
+                                <span class="arrival-time">${trip.arrival_location}</span>
+                                </div>
+                                <div class="trip-time">
+                                <span class="departure-time">${trip.departure_datetime}</span> -
+                                <span class="arrival-time">${trip.arrival_datetime}</span>
+                                </div>
+                                <div class="trip-price">${trip.price_to_show} TL</div>
+                                <form method="POST" action="{{url_for('my_journeys.remove_from_journey', 
+                                journey_id=1, schedule_code='${trip.schedule_code}')}}">
+                                <button class="rb-ticket" id="remove-trip">Remove Trip</button>
+                                </form>
+                            </div>
+                            </li>
+                        `;
+
+                            tripList.append(newListItem);
+                        }
+
+                        console.log(response); // Example: Log the response to the console
+
+                    },
+                    error: function (error) {
+                        // Handle any errors that occurred during the AJAX request
+                        console.log(error);
+                    }
+                });
+            }
+
+        });
+    });
+</script>
+
+<script>
+    function showConfirmation() {
+        var confirmation = confirm("Are you sure?");
+        /*
+            if (confirmation) {
+              // User clicked "OK" in the confirmation dialog
+              // Perform the desired action here
+              alert("Confirmed!");
+            } else {
+              // User clicked "Cancel" in the confirmation dialog
+              // Handle the cancellation or perform alternative action here
+              alert("Cancelled!");
+            }*/
+    }
+</script>
+
+
+
+<style>
+    .journey-listing {
+        max-width: 1200px;
+        margin: 20px auto;
+
+    }
+
+    .journey-listing h2 {
+        color: #f44336
+    }
+
+    .journey-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .journey-item {
+        margin: 0;
+        position: relative;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.8s ease;
+        /* Apply a smooth transition effect */
+    }
+
+    .journey-details {
+        padding: 10px;
+        border-radius: 5px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-end;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .journey-details:hover {
+        background-color: #7fa98c76;
+    }
+
+    .journey-details>* {
+        margin-right: 3%;
+        margin-bottom: 5px;
+        /* Adjust the spacing between journey-name elements */
+        white-space: nowrap;
+        background-color: #cdcdcd67;
+        padding: 5px;
+        border-radius: 3px;
+    }
+
+    .journey-details>*:last-child {
+        margin-right: 0px;
+        /* Adjust the spacing between journey-name elements */
+        align-self: flex-end;
+    }
+
+    .journey-name {
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .journey-text {
+        font-size: 16px;
+    }
+
+    .journey-status {
+        font-size: 16px;
+        padding: 5px;
+        border-radius: 3px;
+    }
+
+    .journey-status.available {
+        background-color: #287df5;
+        color: white;
+    }
+
+    .journey-status.full {
+        justify-content: center;
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .ticket-selection {
+        justify-content: space-between;
+        display: none;
+        overflow: hidden;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: #7fa98c3d;
+        border: 1px solid #ccc;
+        transition: display 0.3s ease, height 0.3s ease;
+        /* Apply a smooth transition effect */
+    }
+
+    .ticket-selection.show {
+        display: flex;
+    }
+
+    .button-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 5px;
+    }
+
+    .review-button {
+        background-color: #ffffffc7;
+        color: #000000;
+        border: thin solid #d914145e;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        margin-right: 10px;
+        padding: 10px 20px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .review-button:hover {
+        background-color: #5252527c;
+    }
+
+    .trip-listing {
+        max-width: 1200px;
+        margin: 20px auto;
+    }
+
+    .trip-listing h2 {
+        color: #f44336
+    }
+
+    .trip-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .trip-item {
+        margin: 0;
+        position: relative;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.8s ease;
+        /* Apply a smooth transition effect */
+    }
+
+    .trip-details {
+        border-radius: 5px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .trip-company {
+        font-size: 24px;
+        font-weight: bold;
+        margin-right: 5%;
+        /* Adjust the spacing between trip-company elements */
+        white-space: nowrap;
+        background-color: #cdcdcd67;
+        padding: 5px;
+        border-radius: 3px;
+    }
+
+    .trip-time {
+        position: relative;
+        font-size: 16px;
+        margin-right: 5%;
+        /* Adjust the spacing between trip-company elements */
+        white-space: nowrap;
+        background-color: #cdcdcd67;
+        padding: 5px;
+        border-radius: 3px;
+    }
+
+    .trip-locations {
+        font-size: 16px;
+        font-weight: bold;
+        margin-right: 5%;
+        /* Adjust the spacing between trip-company elements */
+        white-space: nowrap;
+        background-color: #cdcdcd67;
+        padding: 5px;
+        border-radius: 3px;
+    }
+
+    .trip-vehicle {
+        font-size: 16px;
+        margin-right: 5%;
+        /* Adjust the spacing between trip-company elements */
+        white-space: nowrap;
+        background-color: #cdcdcd67;
+        padding: 5px;
+        border-radius: 3px;
+    }
+
+    .trip-price {
+        font-size: 20px;
+        font-weight: bold;
+        margin-right: 5%;
+        /* Adjust the spacing between trip-company elements */
+        white-space: nowrap;
+        background-color: #cdcdcd67;
+        padding: 5px;
+        border-radius: 3px;
+    }
+
+    .trip-status {
+        font-size: 16px;
+        padding: 5px;
+        border-radius: 3px;
+        margin-right: 5%;
+        /* Adjust the spacing between trip-company elements */
+        white-space: nowrap;
+        background-color: #cdcdcd67;
+        padding: 5px;
+        border-radius: 3px;
+    }
+
+    .trip-status.available {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .trip-status.full {
+        justify-content: center;
+        background-color: #f44336;
+        width: 60px;
+        color: white;
+    }
+
+    .rb-ticket {
+        margin-top: 8px;
+        background-color: #000000ce;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .rb-ticket:hover {
+        background-color: #5252527c;
+    }
+</style>
+{% endblock %}
+{% block content %}
+
+{% if message is defined and message %}
+<h2>{{message}}</h2>
+{% endif %}
+
+<div class="journey-listing">
+
+    <ul class="journey-list">
+        {% for journey in journeys %}
+        <li class="journey-item">
+            <div class="journey-details" data-journey-id="{{journey.journey_id}}">
+                <div class="journey-name">
+                    <span>{{journey.journey_name}}</span>
+                </div>
+                {% if journey.all_booked %}
+                <div class="journey-status full">All Booked</div>
+                {% else %}
+                <div class="journey-text">
+                    You can book a ticket for every trip in this journey. (If available) (Books economy)
+                </div>
+                <div class="journey-status available">Book Tickets</div>
+                {% endif %}
+            </div>
+            <div class="ticket-selection">
+                <ul class="trip-list" id="trip-list">
+
+                </ul>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endblock %}
+</div>
+
+
+
+</html>

@@ -11,6 +11,7 @@ import time
 from search import search_bp
 from my_tickets import my_tickets_bp
 from company import company_bp
+from my_journeys import my_journeys_bp
 from db_util import generate_tickets
 
 app = Flask(__name__)
@@ -28,7 +29,7 @@ app.extensions['mysql'] = mysql
 app.register_blueprint(search_bp)
 app.register_blueprint(my_tickets_bp)   
 app.register_blueprint(company_bp)
-
+app.register_blueprint(my_journeys_bp)
 
 
 
