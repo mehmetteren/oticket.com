@@ -95,6 +95,48 @@
 
 
 <style>
+     h2 {
+    color: #f44336;
+    margin-left: 20px;
+  }
+    .search-bar {
+    margin-bottom: 20px;
+    margin-left: 0%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+  }
+
+  .search-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .search-bar label {
+    margin-right: 3px;
+    font-size: 16px;
+  }
+
+  .search-bar button[type="submit"] {
+    padding: 10px;
+    border: none;
+    border-radius: 3px;
+    border-color: #f44336;
+    font-size: 14px;
+    margin-left: 70px;
+  }
+
+  .search-bar button[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+  }
     .journey-listing {
         max-width: 1200px;
         margin: 20px auto;
@@ -350,6 +392,19 @@
 {% endblock %}
 {% block content %}
 
+
+<div class="search-bar"> <!-- buuuuuuuus -->
+    <form method="POST" action="{{ url_for('my_journeys.create_journey') }}" class="form">
+      <div class="select-container">
+        <label for="journey_name">Journey Name:</label>
+        <input type="text" id="journey_name" name="journey_name">
+      </div>
+      <button type="submit">Create Journey</button>
+    </form>
+</div>
+
+
+
 {% if message is defined and message %}
 <h2>{{message}}</h2>
 {% endif %}
@@ -364,13 +419,18 @@
                     <span>{{journey.journey_name}}</span>
                 </div>
                 {% if journey.all_booked %}
-                <div class="journey-status full">All Booked</div>
+                <button class="journey-status full">All Booked</button>
                 {% else %}
-                <div class="journey-text">
+                <!--<div class="journey-text">
                     You can book a ticket for every trip in this journey. (If available) (Books economy)
                 </div>
-                <div class="journey-status available">Book Tickets</div>
+                <form method="POST" action="{{url_for('my_journeys.book_tickets', journey_id=journey.journey_id)}}">
+                    <button class="journey-status available">Book Tickets</button>
+                </form>-->
                 {% endif %}
+                <form method="POST" action="{{url_for('my_journeys.delete_journey', journey_id=journey.journey_id)}}">
+                    <button class="rb-ticket">Delete Journey</button>
+                </form>
             </div>
             <div class="ticket-selection">
                 <ul class="trip-list" id="trip-list">

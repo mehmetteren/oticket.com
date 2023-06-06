@@ -1,117 +1,18 @@
-<!DOCTYPE html>
-<html>
-<head>
+{% extends 'base_v2.html' %}
+{% block head %}
+{{super()}}
 <title>Vehicles Page</title>
 
 <style>
 
-.navbar {
-    display: flex;
-    justify-content:space-between;
-    align-items: center;
-    padding: 10px 20px;
-    font-family:'Courier New', Courier, monospace;
-    font-weight:bold;
-  }
-  
-  .navbar-brand a {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-  }
-  
-  .navbar-nav {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .nav-item {
-    margin: 0 10px;
-  }
-    
-  .nav-item a {
-    font-size: 18px;
-    color: rgb(61, 61, 61);
-    text-decoration: none;
-  }
-  
-  /* Top Navbar Styles */
-  .top-navbar {
-    background-color: #f8f8f8;
-    border-bottom: 1px solid #ccc;
-  }
-  
-  .navbar-profile {
-    display: flex;
-    align-items: center;
-  }
-  
-  .navbar-profile .navbar-username {
-    font-size: 18px;
-    margin-right: 10px;
-  }
-  
-  .navbar-profile .navbar-profile-icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: #ccc;
-    margin-right: 10px;
-  }
-  
-  .navbar-profile .navbar-profile-icon i {
-    color: #fff;
-  }
-  
-  .navbar-logout-button {
-    background-color: #4caf50;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    font-size: 18px;
-    cursor: pointer;
-  }
-  
-  .navbar-logout-button:hover {
-    background-color: #3e8e41;
-  }
-  
-  /* Bottom Navbar Styles */
-  .bottom-navbar {
-    background-color: #4caf50;
-    color: #fff;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .bottom-navbar a {
-    background-color: #fff;
-    color: #3e3e3e;
-    border: #434343;
-    border-width:thick;
-    border-radius: 12px;
-    padding: 7px 20px;
-  }
 
-  .nav-item-selected a {
-    margin: 0 10px;
-    background-color: #005303;
-    font-size: 18px;
-    color: #ffffff;
-    text-decoration: none;
-  }
-
-  .page-main-column-first {
+.page-main-column-first {
   float: left;
   width: 30%;
+}
+.page-main-column-first>* {
+  margin-left: 10px;
+  width: 100%;
 }
 
 .page-main-column-second {
@@ -141,42 +42,19 @@
     }
 </style>
 
-</head>
-<body>
+{% endblock %}
+{% block content %}
 
-    <div>
-		<nav class="navbar top-navbar">
-            <div class="navbar-brand">
-                <a href="#">oticket.com</a>
-            </div>
-            <ul class="navbar-nav">
-                
-                <li class="nav-item"><a href="#">My Journeys</a></li>
-                <li class="nav-item"><a href="#">|</a></li>
-                <li class="nav-item"><a href="#">My Tickets</a></li>
-            </ul>
-            <div class="navbar-profile">
-                <span class="navbar-username">Username</span>
-                <a href="#" class="navbar-profile-icon"><i class="fas fa-user"></i></a>
-                <a href="#" class="navbar-logout-button">Logout</a>
-            </div>
-        </nav>
-  
-        <nav class="navbar bottom-navbar">
-            <ul class="navbar-nav">
-            <li class="nav-item"><a href="#">Stats</a></li>
-            <li class="nav-item"><a href="#">Vehicles</a></li>
-            <li class="nav-item"><a href="#">Schedules</a></li>
-            <li class="nav-item"><a href="#">My Company</a></li>
-            </ul>
-        </nav>
-	</div>
 
+{% if message is defined and message %}
+<h2>{{message}}</h2>
+{% endif %}
 
 <h1>Vehicles</h1>
 
 <div>    
     <div class="page-main-column-first">
+      <form action="{{url_for('company.add_vehicle')}}" method="POST">
         <fieldset style="width: 30%">
             <legend>Enter new Vehicle</legend>
             <div>
@@ -184,23 +62,37 @@
                 <input type="text" id="vehicle-code" name="vehicle-code" value="Enter Vehicle Code">  
             </div>
             <div>
-                <label for="vehicle-capacity">Vehicle Capacity</label><br>
-                <input type="text" id="vehicle-capacity" name="vehicle-capacity" value="Enter Vehicle Capacity">  
+                <label for="economy-capacity">Economy Capacity</label><br>
+                <input type="number" id="economy-capacity" name="economy-capacity" step="1" min="0" required>  
             </div>
             <div>
-                <label for="vehicle-availabilty">Vehicle Availabilty</label><br>
-                <input type="text" id="vehicle-availabilty" name="vehicle-availabilty" value="Enter Vehicle Availabilty">  
+                <label for="business-capacity">Business Capacity</label><br>
+                <input type="number" id="business-capacity" name="business-capacity" step="1" min="0" required>
+            </div>
+            <div>
+              <label for="first-class-capacity">First Class Capacity</label><br>
+              <input type="number" id="first-class-capacity" name="first-class-capacity" step="1" min="0" required>
             </div>
             <div>
                 <label for="vehicle-model-name">Vehicle Model Name</label><br>
-                <input type="text" id="vehicle-model-name" name="vehicle-model-name" value="Enter Model Name">  
+                <input type="text" id="vehicle-model-name" name="vehicle-model-name" required>  
             </div>
             <div>
                 <label for="vehicle-model-year">Vehicle Model Year</label><br>
-                <input type="text" id="vehicle-model-year" name="vehicle-model-year" value="Enter Model year">  
+                <input type="number" id="vehicle-model-year" name="vehicle-model-year" required value="2000">  
             </div>
+            <div>
+              <label for="transportation-type">Transportation Type:</label>
+              <select id="transportation-type" name="transportation-type" required>
+                <option value="Bus">Bus</option>
+                <option value="Train">Train</option>
+                <option value="Flight">Flight</option>
+              </select>
+            </div>
+
             <input type="submit" value="Register Vehicle">
         </fieldset>
+      </form>
     </div>
     <div class="page-main-column-second">
         <div class="contentbar">
@@ -212,21 +104,23 @@
                     <th>Model Name</th>
                     <th>Model Year</th>
                 </tr>
+                {% for vehicle in vehicles %}
                 <tr>
-                  <td>ABC123</td>
-                  <td>5</td>
+                  <td>{{vehicle.vehicle_code}}
+                    <form action="{{url_for('company.delete_vehicle', vehicle_code=vehicle.vehicle_code)}}" method="POST">
+                      <input type="submit" value="Delete">
+                    </form>
+                  </td>
+                  <td>e:{{vehicle.capacity_economy}}, b:{{vehicle.capacity_business}}, f:{{vehicle.capacity_firstclass}}</td>
+                  {% if vehicle.availability %}
                   <td>Available</td>
-                  <td>Toyota Corolla</td>
-                  <td>2023</td>
+                  {% else %}
+                  <td>Busy</td>
+                  {% endif %}
+                  <td>{{vehicle.model_name}}</td>
+                  <td>{{vehicle.year}}</td>
                 </tr>
-                
-                <tr>
-                    <td>DEF456</td>
-                    <td>10</td>
-                    <td>Available</td>
-                    <td>Honda Civic</td>
-                    <td>2022</td>
-                </tr>
+                {% endfor %}
             </table>                                
         </div>        
     </div>
@@ -236,5 +130,4 @@
 
 </div>
 
-</body>
-</html>
+{% endblock %}

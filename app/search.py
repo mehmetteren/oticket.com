@@ -39,7 +39,7 @@ def search_ticket(type):
         return render_template('search.html', locations=locations)
     
     if request.method == 'POST':
-        return redirect(url_for('search.search_results', type=type,
+        return redirect(url_for('search.search_results', type=session['type'],
                        departure_location=request.form.get('departure_loc'), arrival_location=request.form.get('arrival_loc'), 
                        date=request.form.get('date'), direct=request.form.get('direct', 0)))
     
@@ -71,7 +71,7 @@ def search_results():
         FROM Schedule s, Route r
         WHERE s.route_id = r.route_id AND r.departure_location = '{departure_location}' AND 
             r.arrival_location = '{arrival_location}' AND DATE(s.departure_datetime) = '{date}' AND
-            s.transfer_code IS {isnull} AND s.transport_type = '{type}'; ''')
+            s.transfer_code IS {isnull} AND r.transport_type = '{type}'; ''')
 
     mysql.connection.commit()
 
@@ -175,13 +175,14 @@ def schedule_info():
         counts[res['category']] = res['cnt']
         prices[res['category']] = res['fare']
     
-
-    cursor.execute(f'''
-    SELECT balance
-    FROM Customer
-    WHERE user_ptr_id = '{session['user_id']}'
-    ''')
-    res = cursor.fetchone()
+    res = None
+    if session.get('loggedin', False) and session['user_type'] == 'Customer':
+        cursor.execute(f'''
+        SELECT balance
+        FROM Customer
+        WHERE user_ptr_id = '{session['user_id']}'
+        ''')
+        res = cursor.fetchone()
 
     response = {
         'counts': counts,
@@ -202,7 +203,7 @@ def reserve_ticket():
     result = ticket_checks(session['user_id'], request.args.get('schedule_code'), 
                   request.args.get('category'), cursor)
     
-    if result['message'] == 'OK':
+    if result['message'] == 'OK' or result['message'] == "Not enough balance!":
 
         cursor.execute(f'''
         UPDATE Ticket 

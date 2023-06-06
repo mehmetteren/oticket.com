@@ -72,6 +72,7 @@ CREATE TABLE Route(
   route_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   departure_location VARCHAR(50),
   arrival_location VARCHAR(50),
+  transport_type ENUM('Flight', 'Bus', 'Train') NOT NULL,
   distance NUMERIC(8, 3)
 );
 
@@ -91,7 +92,6 @@ CREATE TABLE Review (
 
 CREATE TABLE Schedule (
   code VARCHAR(10) NOT NULL PRIMARY KEY,
-  transport_type VARCHAR(50),
   departure_datetime DATETIME,
   arrival_datetime DATETIME,
   male_female_seats BOOLEAN,

@@ -12,7 +12,7 @@ from search import search_bp
 from my_tickets import my_tickets_bp
 from company import company_bp
 from my_journeys import my_journeys_bp
-from db_util import generate_tickets
+from db_util import generate_tickets, is_duplicate_route
 
 app = Flask(__name__)
 
@@ -35,11 +35,16 @@ app.register_blueprint(my_journeys_bp)
 
 # TODO: cursor.close() mysql.connection.close()
 
-
 @app.route('/')
 def test():
-    # generate_tickets(mysql, 'S004', 1000, 2300, 2000)
-    return redirect(url_for('search.search_ticket', type='ALL'))
+    session['type'] = 'Bus'
+    #print(is_duplicate_route('Ankara ASTI', 'ESENLER', 5, mysql.connection.cursor(MySQLdb.cursors.DictCursor)))
+    #generate_tickets(mysql, 'S004', 1000, 2300, 2000)
+    #generate_tickets(mysql, 'S002', 800, 1000, 900)
+    #generate_tickets(mysql, 'S003', 1200, 2500, 1900)
+
+
+    return redirect(url_for('search.search_ticket', type=session['type']))
     
 
 
@@ -130,9 +135,10 @@ def register():
 
 
 # TODO: not finished, logic is not correct
-@app.route('/change-type', methods =['POST'])
+@app.route('/change-type', methods =['POST', 'GET'])
 def change_type():
-    session['transportation_type'] = request.args.get('transportation_type')
+    session['type'] = request.args.get('type')
+    return redirect(url_for('search.search_ticket', type=session['type']))
 
 
 
@@ -157,6 +163,30 @@ def logout():
     else:
         redirect(url_for('login', message="not logged in!"))
 
+@app.route('/reports', methods=['GET', 'POST'])
+def reports():
+
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    cursor.execute(f'''
+SELECT DATE(purchase_datetime) as date, COUNT(*) as total_tickets_sold
+FROM Ticket
+WHERE purchase_datetime BETWEEN DATE_SUB(NOW(), INTERVAL 1 WEEK) AND NOW()
+GROUP BY DATE(purchase_datetime)
+LIMIT 7;''')
+    results1 = cursor.fetchall()
+
+    cursor.execute('''
+    SELECT r.transport_type, AVG(fare) as avg_price
+FROM Schedule s, Ticket t, Route r
+WHERE t.purchase_datetime BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW() AND
+t.schedule_code = s.code AND t.customer_id is not null AND r.route_id = s.route_id 
+GROUP BY r.transport_type;
+    ''')
+
+    results2 = cursor.fetchall()
+
+    return f"<h2> -- the busiest days for ticket purchases in the last week: {results1} </h2><h2> average price of tickets for each category: {results2} </h2>"
 
 
 if __name__ == "__main__":

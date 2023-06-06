@@ -144,10 +144,10 @@
         <a class="nav-link text-black" href="#">Stats</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-black" href="#">Vehicles</a>
+        <a class="nav-link text-black" href="{{ url_for('company.vehicles') }}">Vehicles</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-black" href="#">Schedules</a>
+        <a class="nav-link text-black" href="{{ url_for('company.schedules') }}">Schedules</a>
       </li>
       <li class="nav-item">
         <a class="nav-link text-black" href="#">My Company</a>
@@ -157,7 +157,12 @@
         <button class="btn btn-success">Logout</button>
       </form>
       {% elif session['user_type'] == 'Admin' %}
-      <!-- admin things -->
+      <li class="nav-item">
+        <a class="nav-link text-black" href="{{url_for('reports')}}">Reports</a>
+      </li>
+      <form action="{{ url_for('logout') }}" method="post">
+        <button class="btn btn-success">Logout</button>
+      </form>
 
       {% else %}
       </ul>
@@ -173,10 +178,19 @@
   <nav class="bottom-navbar">
     <!-- if session['type'] -->
     <ul>
-      <li class="nav-item"><a href="#" onclick="changeType(this, 'ALL')">ALL</a></li>
-      <li class="nav-item"><a href="#" onclick="changeType(this, 'Flight')">Flight</a></li>
-      <li class="nav-item"><a href="#" onclick="changeType(this, 'Bus')">Bus</a></li>
-      <li class="nav-item"><a href="#" onclick="changeType(this, 'Train')">Train</a></li>
+      {% if session['type'] == 'Bus' %}
+      <li class="nav-item"><a href="{{url_for('change_type', type='Flight')}}" >Flight</a></li>
+      <li class="nav-item"><a class="selected" href="{{url_for('change_type', type='Bus')}}" >Bus</a></li>
+      <li class="nav-item"><a href="{{url_for('change_type', type='Train')}}" >Train</a></li>
+      {% elif session['type'] == 'Flight' %}
+      <li class="nav-item"><a class="selected" href="{{url_for('change_type', type='Flight')}}" >Flight</a></li>
+      <li class="nav-item"><a href="{{url_for('change_type', type='Bus')}}" >Bus</a></li>
+      <li class="nav-item"><a href="{{url_for('change_type', type='Train')}}" >Train</a></li>
+      {% elif session['type'] == 'Train' %}
+      <li class="nav-item"><a href="{{url_for('change_type', type='Flight')}}" >Flight</a></li>
+      <li class="nav-item"><a href="{{url_for('change_type', type='Bus')}}" >Bus</a></li>
+      <li class="nav-item"><a class="selected" href="{{url_for('change_type', type='Train')}}" >Train</a></li>
+      {% endif %}
     </ul>
   </nav>
 

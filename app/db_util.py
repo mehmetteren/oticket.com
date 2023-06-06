@@ -1,6 +1,7 @@
 import MySQLdb.cursors
 import string
 from typing import Tuple
+import Levenshtein
 
 def get_all(table, attribute='*', cursor=None, where='TRUE'):
     if cursor:       
@@ -83,7 +84,7 @@ def ticket_checks(user_id, schedule_code, category,  cursor, conflicting_schedul
 
     # Check if user has enough balance
     if ticket['fare'] > balance:
-        return {'message':"Not enough balance!", 'seat_no': None}
+        return {'message':"Not enough balance!", 'ticket': ticket}
 
     # Check if user is old enough
     if age < 18:
@@ -110,3 +111,21 @@ def ticket_checks(user_id, schedule_code, category,  cursor, conflicting_schedul
                     'seat_no': None}
     
     return {'message':"OK", 'ticket': ticket}
+
+
+def is_duplicate_route(departure, arrival, threshold, cursor):
+    # Retrieve existing routes from the Route table
+    
+    existing_routes = get_all('Route', attribute='departure_location, arrival_location', cursor=cursor)
+
+    # Check similarity between user input and existing routes
+    for route in existing_routes:
+        existing_departure = route['departure_location'].lower()
+        existing_arrival = (route['arrival_location']).lower()
+        departure_distance = Levenshtein.distance(departure.lower(), existing_departure)
+        arrival_distance = Levenshtein.distance(arrival.lower(), existing_arrival)
+
+        if departure_distance <= threshold and arrival_distance <= threshold:
+            return True  # Similar route already exists
+
+    return False  # No similar route found

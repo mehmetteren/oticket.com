@@ -25,9 +25,7 @@ def my_journeys():
     ''')
     journeys = cursor.fetchall()
 
-    return render_template('my_journeys.html', journeys=journeys)
-
-
+    return render_template('my_journeys.html', journeys=journeys, message=request.args.get('message'))
 
 
 @my_journeys_bp.route('/journey-info', methods=['GET'])
@@ -64,6 +62,51 @@ def journey_info():
     return jsonify(response)
 
 
+@my_journeys_bp.route('/create-journey', methods=['POST'])
+def create_journey():
+    if not session['loggedin'] or not session['user_type'] == 'Customer':
+        return redirect(url_for('login', message='You must be logged in as a customer to create a journey!'))
+
+    mysql = current_app.extensions['mysql']
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    journey_name = request.form.get('journey_name')
+
+    cursor.execute(f'''
+    INSERT INTO Journey (customer_id, journey_name, all_booked) VALUES
+    ({session['user_id']}, '{journey_name}', FALSE)
+    ''')
+    mysql.connection.commit()
+
+    return redirect(url_for('my_journeys.my_journeys', message='Journey created successfully!'))
+
+@my_journeys_bp.route('/delete-journey', methods=['POST'])
+def delete_journey():
+    if not session['loggedin'] or not session['user_type'] == 'Customer':
+        return redirect(url_for('login', message='You must be logged in as a customer to delete a journey!'))
+
+    mysql = current_app.extensions['mysql']
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    journey_id = request.args.get('journey_id')
+
+    cursor.execute(f'''
+    DELETE
+    FROM Journey
+    WHERE journey_id = {journey_id} AND customer_id = {session['user_id']}
+    ''')
+
+    mysql.connection.commit()
+
+    cursor.execute(f'''
+    DELETE              
+    FROM Leg
+    WHERE journey_id = {journey_id}
+    ''')
+
+    mysql.connection.commit()
+
+    return redirect(url_for('my_journeys.my_journeys', message='Journey deleted successfully!'))
 
 
 @my_journeys_bp.route('/add-to-journey', methods=['POST'])
@@ -135,3 +178,7 @@ def remove_from_journey():
     mysql.connection.commit()
     
     return redirect(url_for('my_journeys.my_journeys', message='Removed from journey successfully!'))
+
+@my_journeys_bp.route('/book-tickets', methods=['POST'])
+def book_tickets():
+    pass
